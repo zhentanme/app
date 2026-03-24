@@ -1,0 +1,44 @@
+---
+title: Get Portfolio
+description: Live token balances and prices for a Safe address via Zerion.
+---
+
+## GET /portfolio
+
+Returns live portfolio data for a given Safe address. Requires `ZERION_API_KEY` to be set in `server/.env`.
+
+## Query Parameters
+
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| `address` | `string` | Yes | Safe smart account address |
+
+## Response
+
+```json
+{
+  "address": "0xYourSafeAddress",
+  "totalValue": "1250.42",
+  "change24h": "+2.3%",
+  "tokens": [
+    {
+      "symbol": "USDC",
+      "balance": "1000.00",
+      "value": "1000.00",
+      "price": "1.00",
+      "change24h": "0.0%"
+    },
+    {
+      "symbol": "BNB",
+      "balance": "0.83",
+      "value": "250.42",
+      "price": "301.71",
+      "change24h": "+1.8%"
+    }
+  ]
+}
+```
+
+<Note>
+  Portfolio data is sourced from the Zerion API. If `ZERION_API_KEY` is not configured, this endpoint returns an error.
+</Note>

@@ -1,0 +1,33 @@
+---
+title: Introduction
+description: The Zhentan server API for queue management, execution, and portfolio data.
+---
+
+The Zhentan server exposes a REST API used by the client and agent to manage the transaction lifecycle — from queueing and risk scoring to execution and portfolio data.
+
+## Base URL
+
+| Environment | URL |
+|-------------|-----|
+| Local | `http://localhost:3001` |
+| Production | Set via `NEXT_PUBLIC_BACKEND_URL` in the client |
+
+## Authentication
+
+The API is currently unauthenticated. It is designed to run locally alongside the client and agent. In production, `CORS_ORIGIN` restricts access to the configured origin.
+
+## Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/queue` | Queue a transaction and get a risk verdict |
+| `POST` | `/execute` | Agent co-signs and submits a UserOperation |
+| `GET` | `/transactions` | List pending transactions |
+| `GET` | `/invoices` | List pending invoices |
+| `POST` | `/notify-resolve` | Update Telegram message with final outcome |
+| `GET` | `/portfolio` | Live portfolio data via Zerion |
+| `GET` | `/health` | Health check |
+
+<Note>
+  Live API playground coming soon. You'll be able to test endpoints directly from this page.
+</Note>

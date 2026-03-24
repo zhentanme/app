@@ -1,0 +1,32 @@
+---
+title: Execute Transaction
+description: Agent co-signs a pending transaction and submits it to the bundler.
+---
+
+## POST /execute
+
+Called by the agent after the owner approves a REVIEW-tier transaction via Telegram. The agent co-signs 2-of-2 and submits the UserOperation to the Pimlico bundler.
+
+## Request
+
+```json
+{
+  "txId": "tx-1234567890"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `txId` | `string` | Yes | ID of the pending transaction to execute |
+
+## Response
+
+```json
+{
+  "txHash": "0x..."
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `txHash` | On-chain transaction hash after successful execution |

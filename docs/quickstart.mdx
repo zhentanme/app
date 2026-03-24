@@ -1,0 +1,116 @@
+---
+title: Quickstart
+description: Get Zhentan running locally with full AI screening in minutes.
+---
+
+## Prerequisites
+
+| Tool | Version |
+|------|---------|
+| Node.js | 18+ |
+| pnpm | 10+ |
+| OpenClaw CLI | latest |
+
+You'll also need accounts for:
+
+- [Privy](https://privy.io) — embedded wallet + Google OAuth
+- [Pimlico](https://pimlico.io) — gasless bundler API key
+- Telegram bot token — for review notifications
+- [Zerion](https://zerion.io) — portfolio data (optional)
+
+## Install
+
+This is a pnpm workspace. Run from the root:
+
+```bash
+pnpm install
+```
+
+## Configure Environment
+
+<Tabs>
+  <Tab title="Client">
+    Create `client/.env.local`:
+
+    ```env
+    NEXT_PUBLIC_PRIVY_APP_ID=your_privy_app_id
+    NEXT_PUBLIC_PIMLICO_API_KEY=your_pimlico_api_key
+    NEXT_PUBLIC_AGENT_ADDRESS=0xYourAgentAddress
+    NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
+    NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
+    ```
+  </Tab>
+  <Tab title="Server">
+    Create `server/.env`:
+
+    ```env
+    AGENT_PRIVATE_KEY=0xYourAgentPrivateKey
+    PIMLICO_API_KEY=your_pimlico_api_key
+    TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+    ZERION_API_KEY=your_zerion_api_key
+    PORT=3001
+    QUEUE_PATH=./pending-queue.json
+    INVOICE_QUEUE_PATH=./invoice-queue.json
+    ```
+  </Tab>
+</Tabs>
+
+See `scripts/.env.example` and `server/.env.example` for full templates.
+
+## Run Locally
+
+<Steps>
+  <Step title="Start the server">
+    ```bash
+    pnpm dev:server
+    # → http://localhost:3001
+    ```
+  </Step>
+  <Step title="Start the client">
+    ```bash
+    pnpm dev:client
+    # → http://localhost:3000
+    ```
+  </Step>
+  <Step title="Set up the OpenClaw agent">
+    ```bash
+    # Symlink the skills into OpenClaw's workspace
+    mkdir -p ~/.openclaw/workspace/skills
+    ln -sf "$(pwd)/agent" ~/.openclaw/workspace/skills/zhentan
+
+    # Restart the gateway
+    openclaw gateway restart
+
+    # Verify detection
+    openclaw skills check
+    ```
+  </Step>
+</Steps>
+
+## Verify It Works
+
+1. Visit `http://localhost:3000`
+2. Sign in with Google → embedded wallet is created
+3. A Safe smart account is deployed on BNB Chain
+4. Navigate to **Send** → enter a recipient and amount
+5. Confirm → transaction is queued
+6. Check server logs for the risk score and verdict
+7. **APPROVE**: tx executes automatically, txHash appears in the UI
+8. **REVIEW**: check Telegram for the interactive approve/reject message
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Transaction stuck in queue">
+    Check server logs for Pimlico API errors. Verify `AGENT_PRIVATE_KEY` is correctly set in `server/.env`.
+  </Accordion>
+  <Accordion title="No Telegram notification">
+    Verify `TELEGRAM_BOT_TOKEN` is set in `server/.env` and the bot has been started in your Telegram chat.
+  </Accordion>
+  <Accordion title="Safe not deploying">
+    Confirm BNB Chain RPC is reachable and your Pimlico API key has BSC network access enabled.
+  </Accordion>
+  <Accordion title="Balance not showing">
+    `ZERION_API_KEY` may be missing from `server/.env`. Portfolio data requires a valid Zerion API key.
+  </Accordion>
+</AccordionGroup>

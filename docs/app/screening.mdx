@@ -1,0 +1,68 @@
+---
+title: Screening
+description: How AI transaction screening works from the user's perspective.
+---
+
+Every transaction you initiate is scored 0–100 against your behavioral profile before anything executes. The result is one of three verdicts.
+
+## The Three Verdicts
+
+<CardGroup cols="3">
+  <Card title="APPROVE" icon="circle-check" iconType="duotone">
+    **Score < 40**
+
+    Your transaction matches your normal patterns. The agent co-signs and executes immediately — no action needed from you.
+  </Card>
+  <Card title="REVIEW" icon="circle-question" iconType="duotone">
+    **Score 40–70**
+
+    Something looks unusual. You'll receive a Telegram message with the full risk analysis and [Approve] [Reject] buttons.
+  </Card>
+  <Card title="BLOCK" icon="circle-xmark" iconType="duotone">
+    **Score > 70**
+
+    The transaction is blocked outright. You'll receive a Telegram alert explaining why.
+  </Card>
+</CardGroup>
+
+## What Gets Scored
+
+Your profile is built from your past transactions. Each new transaction is checked against:
+
+- **Recipient** — is this address in your known contacts?
+- **Amount** — is this within your typical range for this recipient?
+- **Daily volume** — would this push you over your daily limit?
+- **Time of day** — is this happening during your normal activity window?
+
+## Deep Analysis on REVIEW
+
+For every REVIEW-tier transaction, the agent automatically runs external security checks before sending you the Telegram notification:
+
+- **GoPlus Security** — recipient address reputation, sanctions, phishing, and known scam detection
+- **Honeypot.is** — token security: honeypot detection, mintable supply, buy/sell tax rates
+
+You receive the full report so you can make an informed decision.
+
+## Responding via Telegram
+
+When a transaction is in REVIEW, you'll get a Telegram message with:
+
+- Transaction details (recipient, amount, token)
+- Risk score and reasons
+- Deep analysis results
+- `[Approve]` and `[Reject]` buttons
+
+Tap **Approve** to execute, or **Reject** to block it.
+
+## Learning Over Time
+
+After every confirmed transaction, Zhentan records the pattern. Recipients you transact with regularly become "known," amounts normalize, and your screening becomes more accurate over time — with fewer false REVIEW alerts.
+
+## Telegram Commands
+
+| Command | Action |
+|---------|--------|
+| `approve <tx-id>` | Manually approve a pending transaction |
+| `reject <tx-id>` | Manually reject a pending transaction |
+| `get-status` | See current screening mode and recent decisions |
+| `screening on` / `screening off` | Toggle screening |

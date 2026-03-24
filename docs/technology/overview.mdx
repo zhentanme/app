@@ -1,0 +1,28 @@
+---
+title: Overview
+description: Technical overview of how Zhentan is built.
+---
+
+Zhentan is built on three independently runnable components that work together: an instant deterministic scoring layer, an interactive AI agent layer, and a smart account execution layer.
+
+<CardGroup cols="2">
+  <Card title="Architecture" icon="diagram-project" iconType="duotone" href="/technology/architecture">
+    System overview, component breakdown, and data flow diagrams.
+  </Card>
+  <Card title="Risk Scoring" icon="gauge-high" iconType="duotone" href="/technology/risk-scoring">
+    How transactions are scored 0–100 against behavioral patterns.
+  </Card>
+  <Card title="Agent" icon="robot" iconType="duotone" href="/technology/agent">
+    The OpenClaw skill pack — skills, lifecycle, and Telegram commands.
+  </Card>
+  <Card title="Contract Deployments" icon="file-contract" iconType="duotone" href="/technology/contracts">
+    Safe, ERC-4337, and infrastructure contract addresses on BNB Chain.
+  </Card>
+</CardGroup>
+
+## Design Principles
+
+- **No LLM on the hot path** — inline risk scoring is deterministic and instant. The agent only steps in after a verdict is reached.
+- **Safe multisig is the foundation** — battle-tested infrastructure. Zhentan adds AI intelligence on top without replacing key management.
+- **The agent owns communication and the 2nd key** — no transaction executes without its signature, making it genuinely agentic.
+- **Continuous learning** — patterns are recorded after every confirmed transaction. The profile improves automatically.

@@ -1,0 +1,34 @@
+---
+title: Overview
+description: What you can do with the Zhentan app.
+---
+
+Zhentan is a smart wallet with built-in AI screening. Every transaction you initiate — whether from the app or from any DApp — passes through the same screening pipeline before it executes.
+
+<CardGroup cols="2">
+  <Card title="Screening" icon="shield-check" iconType="duotone" href="/app/screening">
+    AI-powered transaction screening that learns your patterns and protects you automatically.
+  </Card>
+  <Card title="WalletConnect" icon="link" iconType="duotone" href="/app/walletconnect">
+    Connect any DApp like PancakeSwap or Venus — all transactions routed through the same pipeline.
+  </Card>
+  <Card title="Invoices" icon="file-invoice-dollar" iconType="duotone" href="/app/invoices">
+    Send invoice files via Telegram and the agent queues them for your review and approval.
+  </Card>
+  <Card title="Portfolio" icon="chart-line" iconType="duotone" href="/app/overview">
+    Live token balances, prices, and 24h change via Zerion API integration.
+  </Card>
+</CardGroup>
+
+## Screening Modes
+
+| Mode | Behavior |
+|------|----------|
+| **ON** | Full pipeline — APPROVE / REVIEW / BLOCK on every transaction |
+| **OFF** | Regular multisig — agent auto-executes without screening |
+
+Toggle anytime from Telegram: `screening on` / `screening off`
+
+## Gasless Transactions
+
+All transactions on Zhentan are gasless. The Pimlico paymaster sponsors gas fees via ERC-4337 account abstraction — you never need BNB to execute transactions.

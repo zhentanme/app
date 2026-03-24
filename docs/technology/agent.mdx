@@ -1,0 +1,92 @@
+---
+title: Agent
+description: The OpenClaw skill pack — skills, transaction lifecycle, and Telegram commands.
+---
+
+## Overview
+
+The Zhentan agent is an OpenClaw skill pack. It holds the 2nd signing key on the Safe 2-of-2 and is the only component that communicates with the user via Telegram. The server handles deterministic screening — the agent handles everything interactive.
+
+**AI models:** Qwen3-235B / Claude Sonnet 4.5 via OpenRouter
+
+## Setup
+
+<Steps>
+  <Step title="Symlink the skills into OpenClaw's workspace">
+    ```bash
+    mkdir -p ~/.openclaw/workspace/skills
+    ln -sf "$(pwd)/agent" ~/.openclaw/workspace/skills/zhentan
+    ```
+  </Step>
+  <Step title="Restart the OpenClaw gateway">
+    ```bash
+    openclaw gateway restart
+    ```
+  </Step>
+  <Step title="Verify detection">
+    ```bash
+    openclaw skills check
+    ```
+  </Step>
+</Steps>
+
+## Skills
+
+| Script | What it does |
+|--------|-------------|
+| `check-pending.js` | Monitors the pending queue for new transactions |
+| `analyze-risk.js` | Pattern-based risk scoring |
+| `deep-analyze.js` | GoPlus + Honeypot.is external security analysis |
+| `sign-and-execute.js` | Co-signs 2-of-2 and submits the UserOperation to Pimlico |
+| `mark-review.js` | Marks a transaction as pending review |
+| `reject-tx.js` | Rejects a transaction |
+| `record-pattern.js` | Records confirmed transaction into the behavioral profile |
+| `toggle-screening.js` | Toggles screening on/off |
+| `queue-invoice.js` | Queues an invoice for dashboard review |
+| `get-status.js` | Returns current screening mode and recent decisions |
+
+## Running Skills Directly
+
+```bash
+pnpm --filter zhentan-agent check-pending
+pnpm --filter zhentan-agent analyze-risk
+pnpm --filter zhentan-agent sign-and-execute
+```
+
+## Telegram Commands
+
+| Command | Action |
+|---------|--------|
+| `approve <tx-id>` | Sign 2-of-2, execute, record pattern, update TG message with txHash |
+| `reject <tx-id>` | Reject, update TG message |
+| `analyze <tx-id>` | Run deep analysis (GoPlus + Honeypot.is) on demand |
+| `get-status [safeAddress]` | Current screening mode and recent decisions |
+| `screening on` / `screening off` | Toggle screening mode |
+
+## Transaction Lifecycle
+
+```
+pending → in_review → executed
+                    → rejected
+```
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Queued by the client, risk score assigned |
+| `in_review` | Sent to Telegram, awaiting user response |
+| `executed` | Agent signed 2-of-2, UserOperation confirmed on-chain |
+| `rejected` | Blocked (score > 70) or rejected by the user |
+
+## Environment Variables
+
+```env
+AGENT_PRIVATE_KEY=0xYourAgentPrivateKey
+PIMLICO_API_KEY=your_pimlico_api_key
+QUEUE_PATH=./pending-queue.json
+STATE_PATH=./state.json
+PATTERNS_PATH=./patterns.json
+```
+
+<Note>
+  Queue file paths default to `~/.openclaw/workspace/skills/zhentan/pending-queue.json`. Override with `QUEUE_PATH`.
+</Note>

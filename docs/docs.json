@@ -1,0 +1,116 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Zhentan",
+  "colors": {
+    "primary": "#F0B90B",
+    "light": "#F5C842",
+    "dark": "#C99A00"
+  },
+  "favicon": "/favicon.png",
+  "logo": {
+    "light": "/logo/dark.png",
+    "dark": "/logo/dark.png"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:gm@zhentan.me"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "App",
+      "href": "https://zhentan.me"
+    }
+  },
+  "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Try Now",
+          "href": "https://zhentan.me",
+          "icon": "rocket-launch"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://x.com/zhentanme",
+          "icon": "user-group"
+        }
+      ]
+    },
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Zhentan App",
+            "pages": [
+              "app/overview",
+              "app/screening",
+              "app/walletconnect",
+              "app/invoices"
+            ]
+          },
+          {
+            "group": "Technology",
+            "pages": [
+              "technology/overview",
+              "technology/architecture",
+              "technology/risk-scoring",
+              "technology/agent",
+              "technology/contracts"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API",
+        "groups": [
+          {
+            "group": "API Reference",
+            "pages": [
+              "api/introduction"
+            ]
+          },
+          {
+            "group": "Queue",
+            "pages": [
+              "api/queue-transaction",
+              "api/get-transactions"
+            ]
+          },
+          {
+            "group": "Execute",
+            "pages": [
+              "api/execute-transaction"
+            ]
+          },
+          {
+            "group": "Invoices",
+            "pages": [
+              "api/get-invoices"
+            ]
+          },
+          {
+            "group": "Portfolio",
+            "pages": [
+              "api/get-portfolio"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "x": "https://x.com/zhentanme",
+      "github": "https://github.com/zhentanme/zhentan"
+    }
+  }
+}

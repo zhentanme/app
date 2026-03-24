@@ -1,0 +1,38 @@
+---
+title: WalletConnect
+description: Connect any DApp to Zhentan and route transactions through the screening pipeline.
+---
+
+Zhentan acts as a WalletConnect v2 wallet. Any DApp that supports WalletConnect — PancakeSwap, Venus, and others — can connect and send transaction requests directly to your Safe smart account.
+
+## How It Works
+
+<Steps>
+  <Step title="Connect from the DApp">
+    Open the DApp and click "Connect Wallet" → select WalletConnect → scan the QR code with the Zhentan app, or paste the connection URI.
+  </Step>
+  <Step title="Approve the DApp session">
+    Zhentan displays the DApp's connection request. Approve it to establish the session.
+  </Step>
+  <Step title="Initiate a transaction in the DApp">
+    Perform any action in the DApp — a swap, a deposit, a stake. The transaction request is sent to Zhentan.
+  </Step>
+  <Step title="Screening runs automatically">
+    The transaction goes through the same risk scoring pipeline as any other Zhentan transaction. APPROVE executes immediately; REVIEW sends a Telegram notification; BLOCK rejects it.
+  </Step>
+  <Step title="DApp receives the result">
+    Once executed, the transaction hash is returned to the DApp. Your DApp session stays active for future transactions.
+  </Step>
+</Steps>
+
+## What Screening Looks Like for DApp Transactions
+
+DApp transactions often involve unfamiliar contract addresses. If the recipient contract is not in your known patterns, the risk score will be higher — likely triggering a REVIEW with deep analysis (GoPlus + Honeypot.is) on the contract address and any tokens involved.
+
+<Tip>
+  After approving a DApp transaction, the contract is recorded in your patterns. Future interactions with the same DApp will score lower and may auto-approve.
+</Tip>
+
+## Supported Networks
+
+WalletConnect sessions on Zhentan operate on **BNB Chain (BSC)**, Chain ID 56.

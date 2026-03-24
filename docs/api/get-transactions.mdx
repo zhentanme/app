@@ -1,0 +1,38 @@
+---
+title: Get Transactions
+description: List all pending transactions in the queue.
+---
+
+## GET /transactions
+
+Returns all transactions currently in the pending queue.
+
+## Response
+
+```json
+[
+  {
+    "id": "tx-1234567890",
+    "to": "0xRecipientAddress",
+    "amount": "100",
+    "token": "USDC",
+    "status": "in_review",
+    "verdict": "REVIEW",
+    "score": 55,
+    "reasons": ["Unknown recipient (+40)", "Outside business hours (+20)"],
+    "createdAt": "2026-03-24T10:00:00Z"
+  }
+]
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Transaction ID |
+| `to` | Recipient address |
+| `amount` | Human-readable amount |
+| `token` | Token symbol |
+| `status` | `pending`, `in_review`, `executed`, or `rejected` |
+| `verdict` | `APPROVE`, `REVIEW`, or `BLOCK` |
+| `score` | Risk score (0–100) |
+| `reasons` | Factors that contributed to the score |
+| `createdAt` | ISO timestamp |

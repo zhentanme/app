@@ -1,0 +1,110 @@
+---
+title: Architecture
+description: System overview, component breakdown, and data flow.
+---
+
+## Components
+
+| Component | Role |
+|-----------|------|
+| `client/` | Next.js 14 frontend — onboarding, dashboard, send/receive, WalletConnect, invoices |
+| `server/` | Express API — inline risk analysis, queue management, Zerion portfolio |
+| `agent/` | OpenClaw skill pack — Telegram commands, deep analysis, 2nd signature, pattern recording |
+
+```mermaid
+flowchart TD
+    U[User Browser] -->|Privy login + embedded wallet| C[Client :3000]
+    D[DApp e.g. PancakeSwap] -->|WalletConnect| C
+    C -->|POST /queue — user signs 1-of-2| S[Server :3001]
+    S -->|analyzeRisk inline| R{Risk Score}
+    R -->|< 40 APPROVE| OC[OpenClaw Agent]
+    R -->|40-70 REVIEW| OC
+    R -->|> 70 BLOCK| OC
+    OC -->|REVIEW: deep-analyze| EXT[GoPlus / Honeypot.is]
+    EXT -->|address + token report| OC
+    OC <-->|REVIEW: report + buttons\nBLOCK: alert| TG[Telegram / User]
+    OC -->|signs 2-of-2| B[Bundler]
+    B -->|UserOperation| BC[BNB Chain]
+    BC -->|txHash| C
+    BC -->|confirmed| OC
+    OC -->|record-pattern| P[(patterns.json)]
+```
+
+## Client
+
+- **Next.js 14** App Router, React 18, TypeScript, Tailwind CSS, Framer Motion
+- **Privy** for Google OAuth + embedded wallet creation
+- Deploys a Safe 2-of-2 smart account per user (owner = user's embedded wallet, co-signer = agent address)
+- Signs 1-of-2, then POSTs to `/queue`
+- **WalletConnect v2** — acts as a wallet for DApps; requests flow through the same pipeline
+- **Portfolio** via Zerion API (live balances, prices, 24h change)
+
+## Server
+
+- **Express** with TypeScript (`tsx` for dev, PM2 for production)
+- Runs `analyzeRisk()` inline on every `/queue` request — no async roundtrip
+- File-based JSON storage shared with the agent
+
+## Agent
+
+- **OpenClaw skill pack** — holds the 2nd signing key
+- Responds to Telegram commands from the owner
+- Runs deep analysis (GoPlus + Honeypot.is) on REVIEW-tier transactions
+- Records patterns after every confirmed transaction
+
+## Data Flow
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant S as Server
+    participant OC as OpenClaw Agent
+    participant EXT as GoPlus / Honeypot.is
+    participant TG as Telegram
+    participant B as Bundler
+    participant BC as BNB Chain
+
+    C->>S: POST /queue {tx, userSignature 1-of-2}
+    S->>S: analyzeRisk() → score
+    S->>OC: notify (verdict + score)
+    alt APPROVE
+        OC->>OC: sign 2-of-2
+        OC->>B: sendUserOperation
+        B->>BC: execute
+        BC-->>C: txHash
+        OC->>S: record-pattern
+    else REVIEW
+        OC->>EXT: deep-analyze (recipient + token)
+        EXT-->>OC: address reputation, token security
+        OC->>TG: analysis report + [Approve] [Reject]
+        TG-->>OC: user responds
+        OC->>OC: sign 2-of-2 (if approved)
+        OC->>B: sendUserOperation
+        B->>BC: execute
+        OC->>S: record-pattern
+    else BLOCK
+        OC->>TG: blocked alert
+    end
+```
+
+## State Files
+
+| File | Purpose |
+|------|---------|
+| `pending-queue.json` | Queued transactions awaiting processing |
+| `invoice-queue.json` | Pending invoice requests |
+| `state.json` | Screening mode and agent decisions |
+| `patterns.json` | Learned behavioral patterns |
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Chain | BNB Chain (BSC), Chain ID 56 |
+| Smart Account | Safe 1.4.1 + ERC-4337 (EntryPoint v0.7) |
+| Bundler/Paymaster | Pimlico (gasless) |
+| Frontend | Next.js 14, React 18, TypeScript, Tailwind CSS, Framer Motion |
+| Auth | Privy (embedded wallets + Google OAuth) |
+| Blockchain libs | viem, permissionless.js |
+| Backend | Express, tsx (dev), PM2 (production) |
+| AI Agent | OpenClaw with Qwen3-235B / Claude Sonnet 4.5 via OpenRouter |

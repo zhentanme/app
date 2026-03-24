@@ -1,0 +1,42 @@
+---
+title: Get Invoices
+description: List all pending invoices in the queue.
+---
+
+## GET /invoices
+
+Returns all invoices queued by the agent for dashboard review.
+
+## Response
+
+```json
+[
+  {
+    "id": "inv-1234567890",
+    "to": "0xRecipientAddress",
+    "amount": "500",
+    "token": "USDC",
+    "invoiceNumber": "INV-2026-001",
+    "dueDate": "2026-04-01",
+    "services": "Design services — March 2026",
+    "riskScore": 40,
+    "riskNotes": "Unknown recipient",
+    "status": "pending",
+    "createdAt": "2026-03-24T10:00:00Z"
+  }
+]
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Invoice ID |
+| `to` | Recipient address extracted from the invoice |
+| `amount` | Payment amount |
+| `token` | Token to send |
+| `invoiceNumber` | Invoice reference number |
+| `dueDate` | Payment due date |
+| `services` | Line items / services rendered |
+| `riskScore` | Computed risk score |
+| `riskNotes` | Reason for the score |
+| `status` | `pending`, `executed`, or `rejected` |
+| `createdAt` | ISO timestamp |

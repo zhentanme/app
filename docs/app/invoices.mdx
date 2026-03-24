@@ -1,0 +1,39 @@
+---
+title: Invoices
+description: Send invoice files to the agent via Telegram and manage payment approvals from the dashboard.
+---
+
+Zhentan can process invoices sent directly through Telegram. The agent extracts the payment details, assigns a risk score, and queues the invoice for your review and approval from the dashboard.
+
+## How It Works
+
+<Steps>
+  <Step title="Send an invoice via Telegram">
+    Forward an invoice file or paste invoice details in your Telegram chat with the Zhentan agent.
+  </Step>
+  <Step title="Agent extracts the details">
+    The agent automatically extracts: recipient address, amount, token, due date, line items, and any relevant notes.
+  </Step>
+  <Step title="Risk score is assigned">
+    The extracted transaction is scored against your patterns — same scoring logic as any other transaction.
+  </Step>
+  <Step title="Invoice appears in the dashboard">
+    The invoice shows up in the **Requests** tab of the Zhentan app with all details and the risk assessment.
+  </Step>
+  <Step title="Approve or reject from the dashboard">
+    Review the invoice details and approve to execute the payment, or reject to dismiss it.
+  </Step>
+</Steps>
+
+## What Gets Extracted
+
+| Field | Description |
+|-------|-------------|
+| `to` | Recipient wallet address |
+| `amount` | Payment amount |
+| `token` | Token to send (e.g. USDC) |
+| `invoiceNumber` | Invoice reference number |
+| `dueDate` | Payment due date |
+| `services` | Line items / services rendered |
+| `riskScore` | Computed risk score |
+| `riskNotes` | Reason for the score |

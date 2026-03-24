@@ -1,0 +1,50 @@
+---
+title: Risk Scoring
+description: How every transaction is scored 0–100 against learned behavioral patterns.
+---
+
+## Overview
+
+When a transaction hits `/queue`, the server runs `analyzeRisk()` instantly against your behavioral profile. This is deterministic and synchronous — no LLM, no async roundtrip. The agent only acts after the verdict is determined.
+
+## Scoring Factors
+
+| Factor | Weight |
+|--------|--------|
+| Unknown recipient (not in patterns) | +40 |
+| Exceeds single-tx limit (default 5,000 USDC) | +30 |
+| Amount > 3× average for known recipient | +25 |
+| Would exceed daily volume limit (default 20,000 USDC) | +20 |
+| Outside business hours (UTC 06:00–20:00) | +20 |
+
+## Score Thresholds
+
+| Score | Verdict | What happens |
+|-------|---------|--------------|
+| **< 40** | APPROVE | Server auto-signs 2-of-2 and executes the UserOperation immediately. Patterns recorded asynchronously. |
+| **40–70** | REVIEW | Agent runs deep analysis (GoPlus + Honeypot.is), sends Telegram notification with [Approve] [Reject] buttons. |
+| **> 70** | BLOCK | Transaction rejected. User receives a Telegram alert. |
+
+## Deep Analysis
+
+For REVIEW-tier transactions, the agent automatically calls:
+
+- **GoPlus Security API** — recipient address reputation, sanctions lists, phishing and known scam detection
+- **Honeypot.is** — token security: honeypot detection, mintable supply, buy/sell tax rates
+
+The full report is delivered to Telegram before the user decides.
+
+## Learned Patterns
+
+Patterns are stored in `patterns.json` and updated after every confirmed transaction:
+
+- Known recipient addresses and their typical amounts
+- Time-of-day activity windows
+- Per-transaction and daily volume limits
+- Token categories
+
+The profile improves continuously — no manual configuration needed.
+
+## Auditability
+
+Risk scores, verdicts, and reasons are stored on each `PendingTransaction` object. Every decision is traceable.

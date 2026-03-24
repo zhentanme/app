@@ -1,0 +1,54 @@
+---
+title: Queue Transaction
+description: Submit a transaction for risk scoring and queuing.
+---
+
+## POST /queue
+
+Receives a proposed transaction from the client. Runs `analyzeRisk()` inline and returns a verdict of APPROVE, REVIEW, or BLOCK.
+
+- **APPROVE (< 40):** co-signs and executes the UserOperation immediately, returns `txHash`
+- **REVIEW (40–70):** queues for Telegram review, returns `id` and `verdict`
+- **BLOCK (> 70):** rejects and alerts via Telegram, returns `verdict`
+
+## Request
+
+```json
+{
+  "to": "0xRecipientAddress",
+  "value": "0",
+  "data": "0x",
+  "safeAddress": "0xYourSafeAddress",
+  "userSignature": "0x...",
+  "token": "USDC",
+  "amount": "100"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `to` | `string` | Yes | Recipient address |
+| `value` | `string` | Yes | Native value in wei (usually `"0"` for token transfers) |
+| `data` | `string` | Yes | Calldata |
+| `safeAddress` | `string` | Yes | User's Safe smart account address |
+| `userSignature` | `string` | Yes | Owner's 1-of-2 signature |
+| `token` | `string` | No | Token symbol for display |
+| `amount` | `string` | No | Human-readable amount for display |
+
+## Response
+
+```json
+{
+  "id": "tx-1234567890",
+  "verdict": "APPROVE",
+  "score": 15,
+  "txHash": "0x..."
+}
+```
+
+| Field | Description |
+|-------|-------------|
+| `id` | Transaction ID in the queue |
+| `verdict` | `APPROVE`, `REVIEW`, or `BLOCK` |
+| `score` | Risk score (0–100) |
+| `txHash` | On-chain hash (present only if APPROVE) |
