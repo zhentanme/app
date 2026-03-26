@@ -5,7 +5,7 @@ metadata:
   openclaw:
     requires:
       bins: ["node"]
-    primaryEnv: ""
+    primaryEnv: "SERVER_URL"
 ---
 
 # Zhentan — Treasury Transaction Monitor
@@ -41,10 +41,7 @@ When the owner says "approve tx-XXX" or taps the ✅ Approve button:
 ```bash
 node skills/zhentan/sign-and-execute.js tx-XXX
 ```
-2. WAIT for the output. If successful, run:
-```bash
-node skills/zhentan/record-pattern.js tx-XXX
-```
+2. WAIT for the output. (Pattern learning is automatic — no extra step needed.)
 3. Update the Telegram notification:
 ```bash
 curl -s -X POST http://localhost:3001/notify-resolve -H 'Content-Type: application/json' -d '{"txId":"tx-XXX","action":"approved","txHash":"THE_TX_HASH"}'
@@ -67,15 +64,15 @@ curl -s -X POST http://localhost:3001/notify-resolve -H 'Content-Type: applicati
 3. Reply confirming the rejection with actual script output.
 
 ### get-status
-Get current screening mode and recent decisions. Optionally pass a Safe address to get status for a specific user.
+Get current screening mode, patterns, and limits for a Safe.
 ```bash
-node skills/zhentan/get-status.js [safeAddress]
+node skills/zhentan/get-status.js <safeAddress>
 ```
 
 ### toggle-screening
-When the owner says "screening on" or "screening off". Optionally pass a Safe address to toggle for a specific user (omit to toggle for all users).
+When the owner says "screening on" or "screening off". Requires a Safe address.
 ```bash
-node skills/zhentan/toggle-screening.js <on|off> [safeAddress]
+node skills/zhentan/toggle-screening.js <on|off> <safeAddress>
 ```
 
 ## When user asks for deeper analysis
@@ -99,7 +96,7 @@ node skills/zhentan/deep-analyze.js <tx-id>
 
 For a quick internal risk score (patterns-based only, no external APIs), use:
 ```bash
-node skills/zhentan/analyze-risk.js <tx-id>
+node skills/zhentan/analyze-risk.js <tx-id> <safeAddress>
 ```
 
 ## Invoice Detection
@@ -116,7 +113,7 @@ When a user sends an invoice file or message containing an invoice:
    - **billedTo** — recipient company name + email
    - **services** — line items with description, qty, rate, total
    - **riskScore** (0-100) — your assessment based on:
-     - Known vs unknown recipient (check patterns.json)
+     - Known vs unknown recipient (check via `get-status.js`)
      - Amount relative to history
      - Due date urgency
    - **riskNotes** — brief explanation of your risk assessment
