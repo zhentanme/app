@@ -4,12 +4,7 @@
   "description": "OpenClaw agent skills for Zhentan transaction screening",
   "type": "module",
   "scripts": {
-    "check-pending": "node check-pending.js",
-    "analyze-risk": "node analyze-risk.js",
-    "sign-and-execute": "node sign-and-execute.js",
-    "record-pattern": "node record-pattern.js",
-    "get-status": "node get-status.js",
-    "toggle-screening": "node toggle-screening.js"
+    "sign-and-execute": "node sign-and-execute.js"
   },
   "dependencies": {}
 }

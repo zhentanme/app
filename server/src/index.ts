@@ -10,6 +10,7 @@ import { createStatusRouter, getTelegramChatIdForSafe } from "./routes/status.js
 import { createResolveRouter } from "./routes/resolve.js";
 import { createRulesRouter } from "./routes/rules.js";
 import { createEventsRouter } from "./routes/events.js";
+import { createAnalyzeRouter } from "./routes/analyze.js";
 import { editNotification } from "./notify.js";
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/status", createStatusRouter());
 app.use("/rules", createRulesRouter());
 app.use("/events", createEventsRouter());
 app.use("/resolve", createResolveRouter());
+app.use("/analyze", createAnalyzeRouter());
 
 app.post("/notify-resolve", async (req, res) => {
   const { txId, action, txHash, safeAddress } = req.body ?? {};
