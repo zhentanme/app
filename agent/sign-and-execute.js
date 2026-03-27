@@ -2,7 +2,7 @@
  * Co-sign and execute a pending transaction via the server.
  * Usage: node sign-and-execute.js <tx-id>
  */
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3001';
+const SERVER_URL = process.env.SERVER_URL || 'https://api.zhentan.me';
 const txId = process.argv[2];
 
 if (!txId) {
