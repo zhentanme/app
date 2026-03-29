@@ -7,7 +7,6 @@ metadata:
       bins: ["curl"]
       env: ["AGENT_SECRET"]
     primaryEnv: "AGENT_SECRET"
-    dmScope: per-peer
 ---
 
 # Zhentan — Onchain Security Agent & Co-Signer
