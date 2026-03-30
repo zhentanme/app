@@ -10,7 +10,7 @@ import { LayoutDashboard, FileText, Settings, User, Bell } from "lucide-react";
 import { clsx } from "clsx";
 
 const navItems = [
-  { href: "/app", label: "App", icon: LayoutDashboard },
+  { href: "/", label: "App", icon: LayoutDashboard },
   { href: "/requests", label: "Requests", icon: Bell, badge: true },
   { href: "/settings", label: "Settings", icon: Settings },
   { href: "/profile", label: "Profile", icon: User },
