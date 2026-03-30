@@ -5,6 +5,7 @@
 import { supabase } from "./client.js";
 import type {
   TransactionRow,
+  UserDetailsRow,
   UserSettingsRow,
   InvoiceRow,
   GlobalLimitsRow,
@@ -15,6 +16,8 @@ import type {
   UserRuleRow,
   DailyStatsRow,
   BehavioralEventRow,
+  CampaignRow,
+  CampaignClaimRow,
 } from "./types.js";
 import type { PendingTransaction, QueuedInvoice } from "../../types.js";
 import type { PatternsFile } from "../../risk.js";
@@ -1036,6 +1039,104 @@ export async function incrementDailyStatsReview(
     total_volume: existing?.total_volume ?? "0",
     approved_volume: existing?.approved_volume ?? "0",
   });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Campaigns
+// ─────────────────────────────────────────────────────────────
+
+export async function getCampaign(id: string): Promise<CampaignRow | null> {
+  const { data } = await supabase
+    .from("campaigns")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  return data ?? null;
+}
+
+export async function getCampaigns(): Promise<CampaignRow[]> {
+  const { data } = await supabase
+    .from("campaigns")
+    .select("*")
+    .order("created_at", { ascending: false });
+  return data ?? [];
+}
+
+export async function getCampaignClaimCount(campaignId: string): Promise<number> {
+  const { count } = await supabase
+    .from("campaign_claims")
+    .select("*", { count: "exact", head: true })
+    .eq("campaign_id", campaignId);
+  return count ?? 0;
+}
+
+export async function getCampaignClaim(
+  campaignId: string,
+  safeAddress: string
+): Promise<CampaignClaimRow | null> {
+  const { data } = await supabase
+    .from("campaign_claims")
+    .select("*")
+    .eq("campaign_id", campaignId)
+    .eq("safe_address", safeAddress.toLowerCase())
+    .maybeSingle();
+  return data ?? null;
+}
+
+export async function createCampaignClaim(
+  campaignId: string,
+  safeAddress: string,
+  tokenAmount: string
+): Promise<CampaignClaimRow> {
+  const { data, error } = await supabase
+    .from("campaign_claims")
+    .insert({
+      campaign_id: campaignId,
+      safe_address: safeAddress.toLowerCase(),
+      token_amount: tokenAmount,
+      status: "pending",
+    })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+export async function updateCampaignClaim(
+  campaignId: string,
+  safeAddress: string,
+  patch: Partial<Pick<CampaignClaimRow, "status" | "tx_hash" | "paid_at">>
+): Promise<void> {
+  await supabase
+    .from("campaign_claims")
+    .update(patch)
+    .eq("campaign_id", campaignId)
+    .eq("safe_address", safeAddress.toLowerCase());
+}
+
+// ─────────────────────────────────────────────────────────────
+// User details
+// ─────────────────────────────────────────────────────────────
+
+export async function getUserDetails(safeAddress: string): Promise<UserDetailsRow | null> {
+  const { data } = await supabase
+    .from("user_details")
+    .select("*")
+    .eq("safe_address", safeAddress.toLowerCase())
+    .maybeSingle();
+  return data ?? null;
+}
+
+export async function upsertUserDetails(
+  safeAddress: string,
+  patch: Partial<Omit<UserDetailsRow, "safe_address" | "created_at" | "updated_at">>
+): Promise<void> {
+  await supabase
+    .from("user_details")
+    .upsert(
+      { safe_address: safeAddress.toLowerCase(), ...patch, updated_at: new Date().toISOString() },
+      { onConflict: "safe_address" }
+    );
 }
 
 /**

@@ -14,10 +14,14 @@ import {
   ExternalLink,
   LogOut,
   Bot,
+  Loader2,
+  AtSign,
+  Pencil,
 } from "lucide-react";
 import { truncateAddress } from "@/lib/format";
 import { useApiClient } from "@/lib/api/client";
 import { useSafeAddress } from "@/lib/useSafeAddress";
+import { ClaimBanner } from "@/components/ClaimBanner";
 import { toHex } from "viem";
 
 const staggerContainer = {
@@ -43,8 +47,13 @@ function ProfilePageContent() {
   const [signing, setSigning] = useState(false);
   const [signResult, setSignResult] = useState<string | null>(null);
   const [signError, setSignError] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameEditing, setUsernameEditing] = useState(false);
+  const [usernameSaving, setUsernameSaving] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
   const router = useRouter();
-  const { user, wallet, getOwnerAccount, logout } = useAuth();
+  const { user, wallet, getOwnerAccount, logout, telegramUserId } = useAuth();
   const { safeAddress: computedSafeAddress } = useSafeAddress(wallet?.address);
   const safeAddress = computedSafeAddress || "";
   const api = useApiClient();
@@ -56,6 +65,32 @@ function ProfilePageContent() {
       .catch(() => {});
   }, [safeAddress, api]);
 
+  useEffect(() => {
+    if (!safeAddress) return;
+    api.users.get(safeAddress)
+      .then((data) => {
+        const u = data?.username ?? null;
+        setUsername(u);
+        setUsernameInput(u ?? "");
+      })
+      .catch(() => {});
+  }, [safeAddress, api]);
+
+  const saveUsername = async () => {
+    if (!safeAddress || !usernameInput.trim()) return;
+    setUsernameSaving(true);
+    setUsernameError(null);
+    try {
+      await api.users.upsert({ safeAddress, username: usernameInput.trim() });
+      setUsername(usernameInput.trim());
+      setUsernameEditing(false);
+    } catch (err) {
+      setUsernameError(err instanceof Error ? err.message : "Failed to save username");
+    } finally {
+      setUsernameSaving(false);
+    }
+  };
+
   const copyAddress = async () => {
     await navigator.clipboard.writeText(safeAddress);
     setCopied(true);
@@ -64,15 +99,12 @@ function ProfilePageContent() {
 
   const handleSign = async () => {
     if (!wallet) return;
-
     setSigning(true);
     setSignResult(null);
     setSignError(null);
-
     try {
       const account = await getOwnerAccount();
       if (!account) throw new Error("Wallet not ready");
-
       const sig = await account.signMessage({
         message: { raw: toHex("Zhentan signing test") },
       });
@@ -94,6 +126,15 @@ function ProfilePageContent() {
           animate="visible"
           className="space-y-5"
         >
+          {/* Claim Banner — always first, most prominent */}
+          <motion.div variants={staggerItem}>
+            <ClaimBanner
+              safeAddress={safeAddress}
+              telegramUserId={telegramUserId}
+              username={username}
+            />
+          </motion.div>
+
           {/* User Info */}
           {user && (user.email || user.name || user.image) && (
             <motion.div variants={staggerItem}>
@@ -139,6 +180,73 @@ function ProfilePageContent() {
               </div>
             </motion.div>
           )}
+
+          {/* Username Section */}
+          <motion.div variants={staggerItem}>
+            <div className="relative rounded-2xl overflow-hidden bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]">
+              <div
+                className="h-px"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(240,185,11,0.4), transparent)",
+                }}
+              />
+              <div className="p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-claw/10 shadow-[0_0_10px_rgba(240,185,11,0.1)] flex items-center justify-center flex-shrink-0">
+                    <AtSign className="h-[18px] w-[18px] text-claw" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-white">Username</h2>
+                    <p className="text-xs text-white/40">
+                      Resolves to your Zhentan address
+                    </p>
+                  </div>
+                </div>
+
+                {usernameEditing ? (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={usernameInput}
+                      onChange={(e) => setUsernameInput(e.target.value)}
+                      placeholder="Enter username"
+                      className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-claw/50"
+                      onKeyDown={(e) => { if (e.key === "Enter") saveUsername(); if (e.key === "Escape") setUsernameEditing(false); }}
+                    />
+                    {usernameError && (
+                      <p className="text-xs text-red-400">{usernameError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={saveUsername}
+                        disabled={usernameSaving || !usernameInput.trim()}
+                        className="flex-1 py-2 rounded-xl bg-claw/90 text-black text-xs font-semibold disabled:opacity-50"
+                      >
+                        {usernameSaving ? <Loader2 className="h-3 w-3 animate-spin mx-auto" /> : "Save"}
+                      </button>
+                      <button
+                        onClick={() => { setUsernameEditing(false); setUsernameInput(username ?? ""); setUsernameError(null); }}
+                        className="flex-1 py-2 rounded-xl bg-white/[0.06] text-white/60 text-xs"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setUsernameEditing(true)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:border-claw/30 transition-colors group"
+                  >
+                    <span className={`text-sm ${username ? "text-white" : "text-white/30"}`}>
+                      {username ? `@${username}` : "Set a username"}
+                    </span>
+                    <Pencil className="h-3.5 w-3.5 text-white/30 group-hover:text-claw/60 transition-colors" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
 
           {/* Multisig Section */}
           <motion.div variants={staggerItem}>

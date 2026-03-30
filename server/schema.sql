@@ -60,6 +60,26 @@ CREATE INDEX IF NOT EXISTS idx_transactions_status       ON transactions (safe_a
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
 
 -- ─────────────────────────────────────────────────────────────
+-- user_details  — identity info synced from Privy on first login
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS user_details (
+  safe_address    TEXT        PRIMARY KEY,
+  email           TEXT,
+  telegram_id     TEXT,
+  name            TEXT,
+  username        TEXT UNIQUE,
+  signer_address  TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE TRIGGER trg_user_details_updated_at
+  BEFORE UPDATE ON user_details
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+ALTER TABLE user_details ENABLE ROW LEVEL SECURITY;
+
+-- ─────────────────────────────────────────────────────────────
 -- user_settings  (replaces state.json)
 -- ─────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS user_settings (
@@ -410,3 +430,46 @@ CREATE INDEX IF NOT EXISTS idx_behavioral_events_type    ON behavioral_events (s
 CREATE INDEX IF NOT EXISTS idx_behavioral_events_recipient ON behavioral_events (safe_address, recipient_address);
 
 ALTER TABLE behavioral_events ENABLE ROW LEVEL SECURITY;
+
+-- ─────────────────────────────────────────────────────────────
+-- campaigns  — token giveaway / reward campaigns
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS campaigns (
+  id              TEXT        PRIMARY KEY,  -- e.g. "genesis-100"
+  name            TEXT        NOT NULL,
+  description     TEXT,
+  token_amount    NUMERIC(20, 2) NOT NULL,
+  max_claims      INT         NOT NULL,
+  requirements    JSONB       NOT NULL DEFAULT '{}',
+  -- e.g. {"tg_connected": true, "username_claimed": true}
+  starts_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
+  ends_at         TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE OR REPLACE TRIGGER trg_campaigns_updated_at
+  BEFORE UPDATE ON campaigns
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+
+-- ─────────────────────────────────────────────────────────────
+-- campaign_claims  — per-user claim per campaign
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS campaign_claims (
+  campaign_id     TEXT        NOT NULL REFERENCES campaigns (id) ON DELETE CASCADE,
+  safe_address    TEXT        NOT NULL,
+  claimed_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  token_amount    NUMERIC(20, 2) NOT NULL,  -- locked at claim time
+  status          TEXT        NOT NULL DEFAULT 'pending'
+                    CHECK (status IN ('pending', 'paid', 'failed')),
+  tx_hash         TEXT,
+  paid_at         TIMESTAMPTZ,
+  PRIMARY KEY (campaign_id, safe_address)
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaign_claims_safe     ON campaign_claims (safe_address);
+CREATE INDEX IF NOT EXISTS idx_campaign_claims_campaign ON campaign_claims (campaign_id, status);
+
+ALTER TABLE campaign_claims ENABLE ROW LEVEL SECURITY;

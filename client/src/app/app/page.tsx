@@ -13,14 +13,16 @@ import { TokenList } from "@/components/TokenList";
 import { Dialog } from "@/components/ui/Dialog";
 import { AuthGuard } from "@/components/AuthGuard";
 import { ThemeLoader } from "@/components/ThemeLoader";
+import { ClaimBanner } from "@/components/ClaimBanner";
 import { useAuth } from "@/app/context/AuthContext";
 import { useApiClient } from "@/lib/api/client";
 import type { TransactionWithStatus, StatusResponse, TokenPosition, PortfolioResponse } from "@/types";
 
 function Dashboard() {
-  const { user, safeAddress, safeLoading } = useAuth();
+  const { user, safeAddress, safeLoading, telegramUserId } = useAuth();
   const api = useApiClient();
 
+  const [username, setUsername] = useState<string | null>(null);
   const [portfolioTotalUsd, setPortfolioTotalUsd] = useState<number | null>(null);
   const [portfolioPercentChange24h, setPortfolioPercentChange24h] = useState<number | null>(null);
   const [tokens, setTokens] = useState<TokenPosition[]>([]);
@@ -74,7 +76,8 @@ function Dashboard() {
     fetchPortfolio();
     fetchTransactions();
     fetchStatus();
-  }, [safeAddress, fetchPortfolio, fetchTransactions, fetchStatus]);
+    api.users.get(safeAddress).then((d) => setUsername(d?.username ?? null)).catch(() => {});
+  }, [safeAddress, fetchPortfolio, fetchTransactions, fetchStatus, api]);
 
   const handleSendSuccess = () => {
     setSendOpen(false);
@@ -104,6 +107,12 @@ function Dashboard() {
       <TopBar screeningMode={screeningMode} />
 
       <main className="flex-1 flex flex-col min-h-0 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
+        <ClaimBanner
+          safeAddress={safeAddress}
+          telegramUserId={telegramUserId}
+          username={username}
+          hideWhenClaimed
+        />
         <div className="flex-shrink-0 mb-4 sm:mb-6">
           <BalanceCard
             portfolioTotalUsd={portfolioTotalUsd}
