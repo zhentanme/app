@@ -32,7 +32,7 @@ export function createUsersRouter(): IRouter {
         ...(name !== undefined && { name }),
         ...(telegramId !== undefined && { telegram_id: telegramId }),
         ...(signerAddress !== undefined && { signer_address: signerAddress }),
-        ...(username !== undefined && { username }),
+        ...(username !== undefined && { username: username.toLowerCase() }),
       });
       const details = await getUserDetails(safeAddress);
       res.json({ user: details });

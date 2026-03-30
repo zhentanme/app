@@ -9,7 +9,7 @@ import { proposeTransaction } from "@/lib/propose";
 import { useAuth } from "@/app/context/AuthContext";
 import { UsdcIcon } from "./icons/UsdcIcon";
 import { ThemeLoaderSpinner } from "./ThemeLoader";
-import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock, Coins, MessageCircle } from "lucide-react";
+import { ChevronDown, ArrowUpRight, CheckCircle2, ExternalLink, Clock, Coins, MessageCircle, X, UserRound } from "lucide-react";
 import { truncateAddress, formatDate, statusLabel, formatTokenAmount } from "@/lib/format";
 import { BSC_EXPLORER_URL } from "@/lib/constants";
 import { useApiClient } from "@/lib/api/client";
@@ -33,6 +33,9 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   const [showTgRequiredModal, setShowTgRequiredModal] = useState(false);
   const [recipient, setRecipient] = useState("");
   const [resolvedAddress, setResolvedAddress] = useState<string | null>(null);
+  const [resolveSource, setResolveSource] = useState<"address" | "ens" | "bnb" | "zhentan" | null>(null);
+  const [resolvedName, setResolvedName] = useState<string | null>(null);
+  const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
   const [resolveError, setResolveError] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
@@ -67,11 +70,16 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     const trimmed = value.trim();
     if (!trimmed) {
       setResolvedAddress(null);
+      setResolvedName(null);
+      setResolvedAvatar(null);
       setResolveError(null);
       return;
     }
     if (trimmed.startsWith("0x") && trimmed.length === 42) {
       setResolvedAddress(trimmed);
+      setResolveSource("address");
+      setResolvedName(null);
+      setResolvedAvatar(null);
       setResolveError(null);
       return;
     }
@@ -80,9 +88,23 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     try {
       const data = await api.resolve.resolve(trimmed);
       setResolvedAddress(data.address);
-    } catch {
+      setResolveSource(data.source);
+      setResolvedName(data.name ?? trimmed);
+      setResolvedAvatar(
+        data.source === "ens"
+          ? `https://metadata.ens.domains/mainnet/avatar/${encodeURIComponent(trimmed)}`
+          : null
+      );
+    } catch (err) {
       setResolvedAddress(null);
-      setResolveError("Resolve failed");
+      setResolveSource(null);
+      setResolvedName(null);
+      setResolvedAvatar(null);
+      const message =
+        err instanceof Error && err.message
+          ? err.message
+          : "Invalid name (Supported: .eth, .bnb or Zhentan names)";
+      setResolveError(message);
     } finally {
       setResolving(false);
     }
@@ -91,6 +113,9 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   useEffect(() => {
     if (!recipient.trim()) {
       setResolvedAddress(null);
+      setResolveSource(null);
+      setResolvedName(null);
+      setResolvedAvatar(null);
       setResolveError(null);
       return;
     }
@@ -192,11 +217,22 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   }
 
   const canSubmit = resolvedAddress || (recipient.startsWith("0x") && recipient.length === 42);
+  const recipientAddressLabel = (address: string) =>
+    address.length > 20 ? `${address.slice(0, 10)}...${address.slice(-6)}` : address;
   const submitLabel = canSubmit
     ? screeningMode
       ? "Propose Transaction"
       : "Send Now"
     : "Select recipient";
+
+  const clearRecipient = () => {
+    setRecipient("");
+    setResolvedAddress(null);
+    setResolveSource(null);
+    setResolvedName(null);
+    setResolvedAvatar(null);
+    setResolveError(null);
+  };
 
   // Screening ON: proposing phase (loader + tx details)
   if (screeningMode && sendPhase === "proposing") {
@@ -282,10 +318,8 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           onClick={() => {
             setSendPhase("form");
             setProposedTx(null);
-            setRecipient("");
-            setResolvedAddress(null);
+            clearRecipient();
             setAmount("");
-            setResolveError(null);
             onSuccess();
           }}
           className="w-full py-3.5"
@@ -386,10 +420,8 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           onClick={() => {
             setSendPhase("form");
             setExecutedResult(null);
-            setRecipient("");
-            setResolvedAddress(null);
+            clearRecipient();
             setAmount("");
-            setResolveError(null);
             onSuccess();
           }}
           className="w-full py-3.5"
@@ -549,21 +581,77 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         <label className="block text-sm font-medium text-slate-400 mb-2">
           To
         </label>
-        <input
-          type="text"
-          placeholder="Wallet address or ENS name"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          className="w-full rounded-2xl bg-white/[0.06] px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
-        />
+        {resolvedAddress && !resolving ? (
+          <div className="w-full flex items-center gap-3 rounded-2xl bg-white/[0.06] px-3.5 py-3 border border-white/[0.07]">
+            <span className="relative w-10 h-10 flex-shrink-0 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-slate-300">
+              {resolvedAvatar ? (
+                <Image
+                  src={resolvedAvatar}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="40px"
+                  unoptimized
+                />
+              ) : (
+                <UserRound className="h-5 w-5" />
+              )}
+            </span>
+            <div className="min-w-0 flex-1">
+              {resolveSource !== "address" ? (
+                <>
+                  <div className="flex items-center gap-2 min-w-0">
+                    <p className="text-white text-base sm:text-sm font-semibold truncate">
+                      {resolvedName ?? recipient}
+                    </p>
+                    {resolveSource === "zhentan" && (
+                      <span className="relative inline-flex group text-claw">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 hidden group-hover:flex items-center gap-1.5 rounded-md bg-slate-900 text-slate-100 border border-white/10 px-2 py-1 text-[10px] whitespace-nowrap z-20 shadow-lg">
+                          Zhentan User
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  <p
+                    className="text-slate-400 text-sm truncate font-mono"
+                    title={resolvedAddress}
+                  >
+                    {recipientAddressLabel(resolvedAddress)}
+                  </p>
+                </>
+              ) : (
+                <p
+                  className="text-white text-base sm:text-sm truncate font-mono"
+                  title={resolvedAddress}
+                >
+                  {recipientAddressLabel(resolvedAddress)}
+                </p>
+              )}
+            </div>
+            <button
+              type="button"
+              aria-label="Remove recipient"
+              onClick={clearRecipient}
+              className="h-7 w-7 rounded-full text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <input
+            type="text"
+            placeholder="Address, .eth, .bnb or Zhentan username"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+            className="w-full rounded-2xl bg-white/[0.06] px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
+          />
+        )}
         {resolving && (
           <p className="text-xs text-slate-500 mt-1">Resolving…</p>
         )}
         {resolveError && !resolving && recipient.trim() && !recipient.startsWith("0x") && (
           <p className="text-xs text-amber-400 mt-1">{resolveError}</p>
-        )}
-        {resolvedAddress && !resolving && (
-          <p className="text-xs text-claw mt-1 font-mono truncate">{resolvedAddress}</p>
         )}
       </div>
 

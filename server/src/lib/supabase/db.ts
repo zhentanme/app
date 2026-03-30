@@ -1118,6 +1118,15 @@ export async function updateCampaignClaim(
 // User details
 // ─────────────────────────────────────────────────────────────
 
+export async function getUserByUsername(username: string): Promise<UserDetailsRow | null> {
+  const { data } = await supabase
+    .from("user_details")
+    .select("*")
+    .eq("username", username.toLowerCase())
+    .maybeSingle();
+  return data ?? null;
+}
+
 export async function getUserDetails(safeAddress: string): Promise<UserDetailsRow | null> {
   const { data } = await supabase
     .from("user_details")
