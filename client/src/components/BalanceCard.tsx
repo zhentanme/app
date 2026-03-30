@@ -87,7 +87,7 @@ export function BalanceCard({
             unoptimized
           />
         </div>
-        <span className="text-base font-medium italic tracking-wide text-claw/90 truncate max-w-[160px] sm:max-w-[220px]">
+        <span className="text-base font-medium italic tracking-wide text-gold/90 truncate max-w-[160px] sm:max-w-[220px]">
           {greeting}
         </span>
       </div>
@@ -146,7 +146,7 @@ export function BalanceCard({
       >
         <span className="text-slate-500 break-all">{cardNumberStyle}</span>
         {copied ? (
-          <Check className="h-4 w-4 text-claw flex-shrink-0" />
+          <Check className="h-4 w-4 text-gold flex-shrink-0" />
         ) : (
           <Copy className="h-4 w-4 flex-shrink-0 opacity-70" />
         )}
@@ -164,7 +164,7 @@ export function BalanceCard({
           onClick={onToggleSend}
           className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 sm:py-3.5 text-sm font-semibold transition-all min-h-[2.75rem] touch-manipulation ${
             sendOpen
-              ? "bg-claw text-white shadow-[0_4px_20px_-2px_rgba(240,185,11,0.4)]"
+              ? "bg-gold text-white shadow-[0_4px_20px_-2px_rgba(229,168,50,0.4)]"
               : "bg-white/[0.08] text-slate-200 hover:bg-white/[0.12]"
           }`}
         >
@@ -176,7 +176,7 @@ export function BalanceCard({
           onClick={onToggleReceive}
           className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 sm:py-3.5 text-sm font-semibold transition-all min-h-[2.75rem] touch-manipulation ${
             receiveOpen
-              ? "bg-claw text-white shadow-[0_4px_20px_-2px_rgba(240,185,11,0.4)]"
+              ? "bg-gold text-white shadow-[0_4px_20px_-2px_rgba(229,168,50,0.4)]"
               : "bg-white/[0.08] text-slate-200 hover:bg-white/[0.12]"
           }`}
         >
@@ -189,7 +189,7 @@ export function BalanceCard({
             onClick={onToggleConnect}
             className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 sm:py-3.5 text-sm font-semibold transition-all min-h-[2.75rem] touch-manipulation ${
               connectOpen
-                ? "bg-claw text-white shadow-[0_4px_20px_-2px_rgba(240,185,11,0.4)]"
+                ? "bg-gold text-white shadow-[0_4px_20px_-2px_rgba(229,168,50,0.4)]"
                 : "bg-white/[0.08] text-slate-200 hover:bg-white/[0.12]"
             }`}
           >

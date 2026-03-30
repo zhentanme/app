@@ -100,7 +100,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-0 cosmic-bg starfield">
+    <div className="flex flex-col h-screen min-h-0 hero-gradient">
       <TopBar screeningMode={screeningMode} />
 
       <main className="flex-1 flex flex-col min-h-0 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
@@ -165,29 +165,31 @@ function Dashboard() {
         <WCTransactionRequest />
 
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden glass-card rounded-2xl">
-          <div className="flex-shrink-0 flex border-b border-white/[0.08] p-6 pb-0 gap-8">
-            <button
-              type="button"
-              onClick={() => setListTab("tokens")}
-              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                listTab === "tokens"
-                  ? "text-claw border-claw"
-                  : "text-slate-400 border-transparent hover:text-slate-300"
-              }`}
-            >
-              Tokens
-            </button>
-            <button
-              type="button"
-              onClick={() => setListTab("activity")}
-              className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                listTab === "activity"
-                  ? "text-claw border-claw"
-                  : "text-slate-400 border-transparent hover:text-slate-300"
-              }`}
-            >
-              Activity
-            </button>
+          <div className="flex-shrink-0 flex items-center gap-1 p-3 sm:p-4 pb-0">
+            <div className="flex items-center gap-1 rounded-full bg-white/[0.04] p-1 border border-white/5">
+              <button
+                type="button"
+                onClick={() => setListTab("tokens")}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  listTab === "tokens"
+                    ? "bg-gold/15 text-gold"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
+                }`}
+              >
+                Tokens
+              </button>
+              <button
+                type="button"
+                onClick={() => setListTab("activity")}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  listTab === "activity"
+                    ? "bg-gold/15 text-gold"
+                    : "text-slate-400 hover:text-slate-200 hover:bg-white/[0.06]"
+                }`}
+              >
+                Activity
+              </button>
+            </div>
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {listTab === "tokens" ? (

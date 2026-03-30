@@ -99,7 +99,7 @@ export function WCTransactionRequest() {
   // Amount badge — matches SendPanel's "amount + icon" row
   const AmountBadge = () => (
     <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
         <ArrowUpRight className="h-5 w-5" />
       </div>
       <DappIcon />
@@ -116,7 +116,7 @@ export function WCTransactionRequest() {
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-4">
             <ThemeLoaderSpinner variant="transaction" />
-            <p className="text-sm font-semibold text-claw">Proposing transaction</p>
+            <p className="text-sm font-semibold text-gold">Proposing transaction</p>
             <p className="text-xs text-slate-500 uppercase tracking-widest">Awaiting your signature</p>
           </div>
           <AmountBadge />
@@ -195,10 +195,10 @@ export function WCTransactionRequest() {
       {requestStatus === "success" && requestTxHash && (
         <div className="space-y-6">
           <div className="flex flex-col items-center gap-3">
-            <div className="w-20 h-20 rounded-2xl bg-claw/20 text-claw flex items-center justify-center">
+            <div className="w-20 h-20 rounded-2xl bg-gold/20 text-gold flex items-center justify-center">
               <CheckCircle2 className="h-10 w-10" />
             </div>
-            <span className="text-sm font-semibold text-claw">Executed</span>
+            <span className="text-sm font-semibold text-gold">Executed</span>
           </div>
           <AmountBadge />
           <dl className="space-y-3 text-sm">
@@ -297,8 +297,8 @@ export function WCTransactionRequest() {
           </dl>
 
           {/* Security note */}
-          <div className="flex items-start gap-3 rounded-xl bg-claw/[0.08] border border-claw/20 px-4 py-3">
-            <Shield className="h-5 w-5 text-claw flex-shrink-0 mt-0.5" />
+          <div className="flex items-start gap-3 rounded-xl bg-gold/[0.08] border border-gold/20 px-4 py-3">
+            <Shield className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
             <p className="text-xs text-slate-300 leading-relaxed">
               This transaction will be queued for AI screening before execution.
             </p>

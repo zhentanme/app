@@ -10,15 +10,23 @@ import { useSafeAddress } from "@/lib/useSafeAddress";
 import { proposeTransaction } from "@/lib/propose";
 import { useApiClient } from "@/lib/api/client";
 import type { QueuedInvoice, StatusResponse } from "@/types";
-import { FileText } from "lucide-react";
+import { Card } from "@/components/ui/Card";
+import { FileText, Bell } from "lucide-react";
 
-const emptyVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.98 },
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    transition: { duration: 0.6, type: "spring" as const, bounce: 0.18 },
+    transition: { duration: 0.5, type: "spring" as const, bounce: 0.15 },
   },
 };
 
@@ -91,58 +99,76 @@ function RequestsPageContent() {
 
   if (safeLoading || !safeAddress) {
     return (
-      <div className="flex flex-col min-h-screen cosmic-bg starfield">
+      <div className="flex flex-col min-h-screen hero-gradient">
         <TopBar screeningMode={false} />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-2 border-claw border-t-transparent" />
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-gold border-t-transparent" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen cosmic-bg starfield">
+    <div className="flex flex-col min-h-screen hero-gradient">
       <TopBar screeningMode={screeningMode} />
       <main className="flex-1 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
-        {!loading && invoices.length === 0 ? (
-          <motion.div
-            className="flex flex-col items-center gap-4 py-24"
-            initial="hidden"
-            animate="visible"
-            variants={emptyVariants}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <FileText className="h-12 w-12 text-slate-600" />
-            </motion.div>
-            <motion.h1
-              className="text-xl font-semibold text-slate-300"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-            >
-              No requests yet
-            </motion.h1>
-            <motion.p
-              className="text-sm text-slate-500 text-center max-w-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-            >
-              Invoices sent via Telegram or WhatsApp will appear here for review.
-            </motion.p>
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          animate="visible"
+          className="space-y-5"
+        >
+          {/* Page Header */}
+          <motion.div variants={staggerItem} className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-2xl bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)] flex items-center justify-center">
+              <Bell className="h-[18px] w-[18px] text-gold" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-white">Requests</h1>
+              <p className="text-xs text-slate-500">Invoices & payment approvals</p>
+            </div>
           </motion.div>
-        ) : (
-          <InvoiceList
-            invoices={invoices}
-            loading={loading}
-            onApprove={handleApprove}
-            onReject={handleReject}
-          />
-        )}
+
+          {!loading && invoices.length === 0 ? (
+            <motion.div variants={staggerItem}>
+              <Card className="py-16">
+                <div className="flex flex-col items-center justify-center text-center">
+                  <motion.div
+                    className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold"
+                    animate={{
+                      y: [0, -4, 0],
+                      boxShadow: [
+                        "0 0 0 rgba(229,168,50,0)",
+                        "0 0 18px rgba(229,168,50,0.2)",
+                        "0 0 0 rgba(229,168,50,0)",
+                      ],
+                    }}
+                    transition={{
+                      duration: 2.2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <FileText className="h-5 w-5" />
+                  </motion.div>
+                  <p className="text-sm font-medium text-slate-300">No requests yet</p>
+                  <p className="mt-1 text-xs text-slate-500 uppercase tracking-widest">
+                    Invoices via Telegram or WhatsApp appear here
+                  </p>
+                </div>
+              </Card>
+            </motion.div>
+          ) : (
+            <motion.div variants={staggerItem}>
+              <InvoiceList
+                invoices={invoices}
+                loading={loading}
+                onApprove={handleApprove}
+                onReject={handleReject}
+              />
+            </motion.div>
+          )}
+        </motion.div>
       </main>
     </div>
   );

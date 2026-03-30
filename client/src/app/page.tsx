@@ -31,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen cosmic-bg starfield px-4 py-8 sm:py-12 safe-area-bottom">
+    <div className="flex items-center justify-center min-h-screen hero-gradient px-4 py-8 sm:py-12 safe-area-bottom">
       <motion.div
         initial={{ opacity: 0, y: 32, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -41,7 +41,7 @@ export default function LoginPage() {
         <Card className="overflow-hidden text-center p-0">
           {/* Logo + copy */}
           <div className="relative p-8 flex flex-col gap-4 items-center">
-            <div className="absolute inset-0 bg-gradient-to-b from-claw/10 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-gold/10 via-transparent to-transparent pointer-events-none" />
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}

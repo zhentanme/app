@@ -51,7 +51,7 @@ function StatusAnimation({ status }: { status: QueuedInvoice["status"] }) {
     case "approved":
       return (
         <motion.div
-          className={`${size} ${common} bg-claw/15 text-claw`}
+          className={`${size} ${common} bg-gold/15 text-gold`}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: [1, 1.05, 1], opacity: 1 }}
           transition={{
@@ -65,7 +65,7 @@ function StatusAnimation({ status }: { status: QueuedInvoice["status"] }) {
     case "executed":
       return (
         <motion.div
-          className={`${size} ${common} bg-claw/20 text-claw`}
+          className={`${size} ${common} bg-gold/20 text-gold`}
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: [0, 1.2, 1], opacity: 1 }}
           transition={{
@@ -97,7 +97,7 @@ function StatusAnimation({ status }: { status: QueuedInvoice["status"] }) {
 function RiskBadge({ score }: { score: number }) {
   const color =
     score < 40
-      ? "bg-claw/15 text-claw"
+      ? "bg-gold/15 text-gold"
       : score <= 70
         ? "bg-amber-400/15 text-amber-400"
         : "bg-red-400/15 text-red-400";
@@ -175,7 +175,7 @@ export function InvoiceDetailDialog({
             className={clsx(
               "text-sm font-semibold",
               invoice.status === "executed" || invoice.status === "approved"
-                ? "text-claw"
+                ? "text-gold"
                 : invoice.status === "rejected"
                   ? "text-red-400"
                   : "text-amber-400"
@@ -187,7 +187,7 @@ export function InvoiceDetailDialog({
 
         {/* Amount row */}
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <FileText className="h-5 w-5" />
           </div>
           <UsdcIcon size={24} className="flex-shrink-0 opacity-90" />

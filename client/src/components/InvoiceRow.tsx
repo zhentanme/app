@@ -16,7 +16,7 @@ interface InvoiceRowProps {
 function RiskBadge({ score }: { score: number }) {
   const color =
     score < 40
-      ? "bg-claw/15 text-claw"
+      ? "bg-gold/15 text-gold"
       : score <= 70
         ? "bg-amber-400/15 text-amber-400"
         : "bg-red-400/15 text-red-400";
@@ -36,8 +36,8 @@ function RiskBadge({ score }: { score: number }) {
 function InvoiceStatusBadge({ status }: { status: QueuedInvoice["status"] }) {
   const styles: Record<QueuedInvoice["status"], string> = {
     queued: "bg-amber-400/15 text-amber-400",
-    approved: "bg-claw/15 text-claw",
-    executed: "bg-claw/15 text-claw",
+    approved: "bg-gold/15 text-gold",
+    executed: "bg-gold/15 text-gold",
     rejected: "bg-red-400/15 text-red-400",
   };
 
@@ -80,7 +80,7 @@ export function InvoiceRow({ invoice, index = 0, onClick }: InvoiceRowProps) {
         bounce: 0.15,
       }}
     >
-      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center flex-shrink-0 text-claw">
+      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center flex-shrink-0 text-gold">
         <FileText className="h-5 w-5" />
       </div>
 

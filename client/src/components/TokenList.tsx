@@ -46,9 +46,9 @@ export function TokenList({ tokens, loading, embedded }: TokenListProps) {
         animate="visible"
         variants={headerVariants}
       >
-        <Coins className="h-4 w-4 text-claw" />
+        <Coins className="h-4 w-4 text-gold" />
         <h2 className="text-sm font-semibold text-white tracking-wide">
-          <span className="text-claw">›</span> Tokens
+          <span className="text-gold">›</span> Tokens
         </h2>
       </motion.div>
 
@@ -80,13 +80,13 @@ export function TokenList({ tokens, loading, embedded }: TokenListProps) {
           transition={{ delay: 0.2, duration: 0.35 }}
         >
           <motion.div
-            className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw"
+            className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold"
             animate={{
               y: [0, -4, 0],
               boxShadow: [
-                "0 0 0 rgba(240,185,11,0)",
-                "0 0 18px rgba(240,185,11,0.2)",
-                "0 0 0 rgba(240,185,11,0)",
+                "0 0 0 rgba(229,168,50,0)",
+                "0 0 18px rgba(229,168,50,0.2)",
+                "0 0 0 rgba(229,168,50,0)",
               ],
             }}
             transition={{

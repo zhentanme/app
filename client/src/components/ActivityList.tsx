@@ -50,9 +50,9 @@ export function ActivityList({ transactions, loading, embedded }: ActivityListPr
         animate="visible"
         variants={headerVariants}
       >
-        <Activity className="h-4 w-4 text-claw" />
+        <Activity className="h-4 w-4 text-gold" />
         <h2 className="text-sm font-semibold text-white tracking-wide">
-          <span className="text-claw">›</span> Activity
+          <span className="text-gold">›</span> Activity
         </h2>
       </motion.div>
 
@@ -84,13 +84,13 @@ export function ActivityList({ transactions, loading, embedded }: ActivityListPr
           transition={{ delay: 0.2, duration: 0.35 }}
         >
           <motion.div
-            className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw"
+            className="mb-3 w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold"
             animate={{
               y: [0, -4, 0],
               boxShadow: [
-                "0 0 0 rgba(240,185,11,0)",
-                "0 0 18px rgba(240,185,11,0.2)",
-                "0 0 0 rgba(240,185,11,0)",
+                "0 0 0 rgba(229,168,50,0)",
+                "0 0 18px rgba(229,168,50,0.2)",
+                "0 0 0 rgba(229,168,50,0)",
               ],
             }}
             transition={{

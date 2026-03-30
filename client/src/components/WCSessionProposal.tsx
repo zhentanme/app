@@ -53,8 +53,8 @@ export function WCSessionProposal() {
         </div>
 
         {/* Security note */}
-        <div className="flex items-start gap-3 rounded-xl bg-claw/[0.08] border border-claw/20 px-4 py-3 w-full">
-          <Shield className="h-5 w-5 text-claw flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 rounded-xl bg-gold/[0.08] border border-gold/20 px-4 py-3 w-full">
+          <Shield className="h-5 w-5 text-gold flex-shrink-0 mt-0.5" />
           <p className="text-xs text-slate-300 leading-relaxed">
             Transactions from this DApp will be screened by your AI agent before execution.
           </p>

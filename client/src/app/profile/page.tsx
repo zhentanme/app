@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { TopBar } from "@/components/TopBar";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuth } from "@/app/context/AuthContext";
+import { Card } from "@/components/ui/Card";
 import {
   Wallet,
   Shield,
@@ -14,6 +15,7 @@ import {
   ExternalLink,
   LogOut,
   Bot,
+  User,
 } from "lucide-react";
 import { truncateAddress } from "@/lib/format";
 import { useApiClient } from "@/lib/api/client";
@@ -85,7 +87,7 @@ function ProfilePageContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen cosmic-bg starfield">
+    <div className="flex flex-col min-h-screen hero-gradient">
       <TopBar screeningMode={screeningMode} />
       <main className="flex-1 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
         <motion.div
@@ -94,66 +96,60 @@ function ProfilePageContent() {
           animate="visible"
           className="space-y-5"
         >
+          {/* Page Header */}
+          <motion.div variants={staggerItem} className="flex items-center gap-3 mb-1">
+            <div className="w-10 h-10 rounded-2xl bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)] flex items-center justify-center">
+              <User className="h-[18px] w-[18px] text-gold" />
+            </div>
+            <div>
+              <h1 className="text-lg font-semibold text-white">Profile</h1>
+              <p className="text-xs text-slate-500">Account & wallet details</p>
+            </div>
+          </motion.div>
+
           {/* User Info */}
           {user && (user.email || user.name || user.image) && (
             <motion.div variants={staggerItem}>
-              <div className="relative rounded-2xl overflow-hidden bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]">
-                <div
-                  className="h-px"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, transparent, rgba(240,185,11,0.4), transparent)",
-                  }}
-                />
-                <div className="p-5">
-                  <div className="flex items-center gap-4">
-                    {user.image ? (
-                      <img
-                        src={user.image}
-                        alt=""
-                        className="w-12 h-12 rounded-2xl object-cover shadow-[0_0_0_1px_rgba(240,185,11,0.15)]"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-2xl bg-claw/10 shadow-[0_0_12px_rgba(240,185,11,0.15)] flex items-center justify-center text-lg font-semibold text-claw">
-                        {(user.name || user.email || "?")
-                          .charAt(0)
-                          .toUpperCase()}
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-white truncate">
-                        {!user.name ||
-                        user.name == "" ||
-                        user.name == "null"
-                          ? "Signed in as"
-                          : `${user.name}`}
-                      </p>
-                      {user.email && (
-                        <p className="text-xs text-slate-500 truncate mt-0.5">
-                          {user.email}
-                        </p>
-                      )}
+              <Card className="p-5">
+                <div className="flex items-center gap-4">
+                  {user.image ? (
+                    <img
+                      src={user.image}
+                      alt=""
+                      className="w-12 h-12 rounded-2xl object-cover shadow-[0_0_0_1px_rgba(229,168,50,0.15)]"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-2xl bg-gold/10 shadow-[0_0_12px_rgba(229,168,50,0.15)] flex items-center justify-center text-lg font-semibold text-gold">
+                      {(user.name || user.email || "?")
+                        .charAt(0)
+                        .toUpperCase()}
                     </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-white truncate">
+                      {!user.name ||
+                      user.name == "" ||
+                      user.name == "null"
+                        ? "Signed in as"
+                        : `${user.name}`}
+                    </p>
+                    {user.email && (
+                      <p className="text-xs text-slate-500 truncate mt-0.5">
+                        {user.email}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
+              </Card>
             </motion.div>
           )}
 
           {/* Multisig Section */}
           <motion.div variants={staggerItem}>
-            <div className="relative rounded-2xl overflow-hidden bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]">
-              <div
-                className="h-px"
-                style={{
-                  background:
-                    "linear-gradient(90deg, transparent, rgba(240,185,11,0.4), transparent)",
-                }}
-              />
-              <div className="p-5">
+            <Card className="p-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-2xl bg-claw/10 shadow-[0_0_10px_rgba(240,185,11,0.1)] flex items-center justify-center flex-shrink-0">
-                    <Shield className="h-[18px] w-[18px] text-claw" />
+                  <div className="w-10 h-10 rounded-2xl bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)] flex items-center justify-center flex-shrink-0">
+                    <Shield className="h-[18px] w-[18px] text-gold" />
                   </div>
                   <div>
                     <h2 className="text-sm font-semibold text-white">
@@ -178,7 +174,7 @@ function ProfilePageContent() {
                       aria-label="Copy safe address"
                     >
                       {copied ? (
-                        <Check className="h-3.5 w-3.5 text-claw" />
+                        <Check className="h-3.5 w-3.5 text-gold" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
@@ -202,10 +198,10 @@ function ProfilePageContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.04] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
                     <div className="w-10 h-10 rounded-xl bg-white/[0.06] flex items-center justify-center flex-shrink-0">
-                      <Wallet className="h-5 w-5 text-claw" />
+                      <Wallet className="h-5 w-5 text-gold" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-medium text-claw">
+                      <p className="text-[11px] font-medium text-gold">
                         Signer 1
                       </p>
                       <p className="text-[11px] text-slate-500 mb-0.5">
@@ -222,11 +218,11 @@ function ProfilePageContent() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.04] shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
-                    <div className="w-10 h-10 rounded-xl bg-claw/10 shadow-[0_0_10px_rgba(240,185,11,0.1)] flex items-center justify-center flex-shrink-0">
-                      <Bot className="h-5 w-5 text-claw" />
+                    <div className="w-10 h-10 rounded-xl bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)] flex items-center justify-center flex-shrink-0">
+                      <Bot className="h-5 w-5 text-gold" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[11px] font-medium text-claw">
+                      <p className="text-[11px] font-medium text-gold">
                         Signer 2
                       </p>
                       <p className="text-[11px] text-slate-500 mb-0.5">
@@ -245,8 +241,7 @@ function ProfilePageContent() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+            </Card>
           </motion.div>
 
           {/* Logout */}

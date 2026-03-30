@@ -205,11 +205,11 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-4">
           <ThemeLoaderSpinner variant="transaction" />
-          <p className="text-sm font-semibold text-claw">Proposing transaction</p>
+          <p className="text-sm font-semibold text-gold">Proposing transaction</p>
           <p className="text-xs text-slate-500 uppercase tracking-widest">Awaiting your signature</p>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
@@ -253,7 +253,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <span className="text-sm font-semibold text-amber-400">{statusLabel(tx.status)}</span>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={tx.token} iconUrl={tx.tokenIconUrl} />
@@ -303,11 +303,11 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-4">
           <ThemeLoaderSpinner variant="transaction" />
-          <p className="text-sm font-semibold text-claw">Processing transaction</p>
+          <p className="text-sm font-semibold text-gold">Processing transaction</p>
           <p className="text-xs text-slate-500 uppercase tracking-widest">Sending on chain</p>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
@@ -343,13 +343,13 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
     return (
       <div className="space-y-6">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-20 h-20 rounded-2xl bg-claw/20 text-claw flex items-center justify-center">
+          <div className="w-20 h-20 rounded-2xl bg-gold/20 text-gold flex items-center justify-center">
             <CheckCircle2 className="h-10 w-10" />
           </div>
-          <span className="text-sm font-semibold text-claw">Executed</span>
+          <span className="text-sm font-semibold text-gold">Executed</span>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={token} iconUrl={executedResult.tokenIconUrl} />
@@ -486,7 +486,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
                   <Image src={selectedToken.iconUrl} alt="" width={32} height={32} className="object-cover" unoptimized />
                 </span>
               ) : (
-                <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-claw">
+                <span className="w-8 h-8 flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-xs font-bold text-gold">
                   {selectedToken.symbol.slice(0, 2)}
                 </span>
               )}
@@ -519,9 +519,9 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         sheetOnMobile
       >
         <div className="flex items-center gap-2 mb-4">
-          <Coins className="h-4 w-4 text-claw" />
+          <Coins className="h-4 w-4 text-gold" />
           <h2 className="text-sm font-semibold text-white tracking-wide">
-            <span className="text-claw">›</span> Tokens
+            <span className="text-gold">›</span> Tokens
           </h2>
         </div>
         {sendableTokens.length === 0 ? (
@@ -554,7 +554,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           placeholder="Wallet address or ENS name"
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
-          className="w-full rounded-2xl bg-white/[0.06] px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
+          className="w-full rounded-2xl bg-white/[0.06] px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
         />
         {resolving && (
           <p className="text-xs text-slate-500 mt-1">Resolving…</p>
@@ -563,7 +563,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <p className="text-xs text-amber-400 mt-1">{resolveError}</p>
         )}
         {resolvedAddress && !resolving && (
-          <p className="text-xs text-claw mt-1 font-mono truncate">{resolvedAddress}</p>
+          <p className="text-xs text-gold mt-1 font-mono truncate">{resolvedAddress}</p>
         )}
       </div>
 

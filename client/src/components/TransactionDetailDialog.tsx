@@ -128,7 +128,7 @@ function StatusAnimation({ status }: { status: TransactionWithStatus["status"] }
     case "in_review":
       return (
         <motion.div
-          className={`${size} ${common} bg-claw/15 text-claw`}
+          className={`${size} ${common} bg-gold/15 text-gold`}
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{
             scale: [1, 1.05, 1],
@@ -149,7 +149,7 @@ function StatusAnimation({ status }: { status: TransactionWithStatus["status"] }
     case "executed":
       return (
         <motion.div
-          className={`${size} ${common} bg-emerald-500/20 text-claw`}
+          className={`${size} ${common} bg-emerald-500/20 text-gold`}
           initial={{ scale: 0, opacity: 0 }}
           animate={{
             scale: [0, 1.2, 1],
@@ -206,11 +206,11 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
           <span
             className={`text-sm font-semibold ${
               tx.status === "executed"
-                ? "text-claw"
+                ? "text-gold"
                 : tx.status === "rejected"
                   ? "text-red-400"
                   : tx.status === "in_review"
-                    ? "text-claw"
+                    ? "text-gold"
                     : "text-amber-400"
             }`}
           >
@@ -220,7 +220,7 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
 
         {/* Amount row */}
         <div className="flex items-center gap-3 rounded-2xl bg-white/[0.06] p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-claw">
+          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
             <DirectionIcon className="h-5 w-5" />
           </div>
           {tx.tokenIconUrl ? (

@@ -58,9 +58,9 @@ export function InvoiceList({
         animate="visible"
         variants={headerVariants}
       >
-        <FileText className="h-4 w-4 text-claw" />
+        <FileText className="h-4 w-4 text-gold" />
         <h2 className="text-sm font-semibold text-white tracking-wide">
-          <span className="text-claw">&rsaquo;</span> Invoices
+          <span className="text-gold">&rsaquo;</span> Invoices
         </h2>
       </motion.div>
 

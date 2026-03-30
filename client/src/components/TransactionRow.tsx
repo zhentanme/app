@@ -32,7 +32,7 @@ function TokenIcon({
   }
   return (
     <span
-      className="flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-claw"
+      className="flex-shrink-0 rounded-full bg-white/10 flex items-center justify-center text-[10px] font-bold text-gold"
       style={{ width: size, height: size }}
     >
       {(symbol || "??").slice(0, 2)}
@@ -63,7 +63,7 @@ export function TransactionRow({ tx, index = 0, onClick }: TransactionRowProps) 
         bounce: 0.15,
       }}
     >
-      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center flex-shrink-0 text-claw">
+      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center flex-shrink-0 text-gold">
         <DirectionIcon className="h-5 w-5" />
       </div>
 

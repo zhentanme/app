@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLinkAccount, usePrivy } from "@privy-io/react-auth";
 import { TopBar } from "@/components/TopBar";
+import { Card } from "@/components/ui/Card";
 import { AuthGuard } from "@/components/AuthGuard";
 import { useAuth } from "@/app/context/AuthContext";
 import {
@@ -15,6 +16,7 @@ import {
   Rocket,
   Server,
   ExternalLink,
+  Settings,
 } from "lucide-react";
 import { useApiClient } from "@/lib/api/client";
 
@@ -106,12 +108,12 @@ function SettingsPageContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen cosmic-bg starfield">
+    <div className="flex flex-col min-h-screen hero-gradient">
       <TopBar screeningMode={screeningMode} />
       <main className="flex-1 w-full px-4 py-5 sm:p-6 md:p-8 max-w-4xl mx-auto overflow-y-auto">
         {loading ? (
           <div className="flex justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-claw" />
+            <Loader2 className="h-6 w-6 animate-spin text-gold" />
           </div>
         ) : (
           <motion.div
@@ -120,25 +122,30 @@ function SettingsPageContent() {
             animate="visible"
             className="space-y-5"
           >
+            {/* Page Header */}
+            <motion.div variants={staggerItem} className="flex items-center gap-3 mb-1">
+              <div className="w-10 h-10 rounded-2xl bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)] flex items-center justify-center">
+                <Settings className="h-[18px] w-[18px] text-gold" />
+              </div>
+              <div>
+                <h1 className="text-lg font-semibold text-white">Settings</h1>
+                <p className="text-xs text-slate-500">Screening & agent configuration</p>
+              </div>
+            </motion.div>
+
             {/* Zhentan Mode Toggle */}
             <motion.div variants={staggerItem}>
-              <div
-                className={`relative rounded-2xl p-5 transition-all duration-300 ${
-                  screeningMode
-                    ? "bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.15),0_8px_32px_-8px_rgba(240,185,11,0.1)]"
-                    : "bg-white/[0.04] shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
-                }`}
-              >
+              <Card className="p-5">
                 <div className="flex items-center gap-4">
                   <div
                     className={`w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                       screeningMode
-                        ? "bg-claw/10 shadow-[0_0_12px_rgba(240,185,11,0.15)]"
+                        ? "bg-gold/10 shadow-[0_0_12px_rgba(229,168,50,0.15)]"
                         : "bg-white/[0.06]"
                     }`}
                   >
                     {screeningMode ? (
-                      <ShieldCheck className="h-5 w-5 text-claw" />
+                      <ShieldCheck className="h-5 w-5 text-gold" />
                     ) : (
                       <ShieldOff className="h-5 w-5 text-slate-500" />
                     )}
@@ -158,9 +165,9 @@ function SettingsPageContent() {
                   <button
                     onClick={handleToggle}
                     disabled={toggling}
-                    className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-claw/30 ${
+                    className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gold/30 ${
                       screeningMode
-                        ? "bg-claw shadow-[0_0_12px_rgba(240,185,11,0.3)]"
+                        ? "bg-gold shadow-[0_0_12px_rgba(229,168,50,0.3)]"
                         : "bg-white/[0.12]"
                     }`}
                   >
@@ -177,7 +184,7 @@ function SettingsPageContent() {
                     )}
                   </button>
                 </div>
-              </div>
+              </Card>
             </motion.div>
 
             {/* Warning when disabled */}
@@ -205,36 +212,18 @@ function SettingsPageContent() {
 
             {/* Current Plan — always visible, dimmed when off */}
             <motion.div variants={staggerItem}>
-              <div
-                className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${
-                  screeningMode
-                    ? "bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]"
-                    : "bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.04)] opacity-40"
-                }`}
-              >
-                {/* Subtle gradient accent line at top */}
-                <div
-                  className={`h-px transition-opacity duration-500 ${
-                    screeningMode ? "opacity-100" : "opacity-0"
-                  }`}
-                  style={{
-                    background:
-                      "linear-gradient(90deg, transparent, rgba(240,185,11,0.4), transparent)",
-                  }}
-                />
-
-                <div className="p-5">
+              <Card className={`p-5 transition-all duration-500 ${!screeningMode ? "opacity-40" : ""}`}>
                   <div className="flex items-center gap-3 mb-4">
                     <div
                       className={`w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-300 ${
                         screeningMode
-                          ? "bg-claw/10 shadow-[0_0_10px_rgba(240,185,11,0.1)]"
+                          ? "bg-gold/10 shadow-[0_0_10px_rgba(229,168,50,0.1)]"
                           : "bg-white/[0.06]"
                       }`}
                     >
                       <Cpu
                         className={`h-[18px] w-[18px] transition-colors duration-300 ${
-                          screeningMode ? "text-claw" : "text-slate-500"
+                          screeningMode ? "text-gold" : "text-slate-500"
                         }`}
                       />
                     </div>
@@ -246,7 +235,7 @@ function SettingsPageContent() {
                         <span
                           className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-all duration-300 ${
                             screeningMode
-                              ? "bg-claw/15 text-claw"
+                              ? "bg-gold/15 text-gold"
                               : "bg-white/[0.06] text-slate-500"
                           }`}
                         >
@@ -269,7 +258,7 @@ function SettingsPageContent() {
                       }`}
                     >
                       <Cpu
-                        className={`h-3 w-3 ${screeningMode ? "text-claw/60" : "text-slate-600"}`}
+                        className={`h-3 w-3 ${screeningMode ? "text-gold/60" : "text-slate-600"}`}
                       />
                       Qwen3-235B-A22B
                     </span>
@@ -371,8 +360,7 @@ function SettingsPageContent() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </div>
-              </div>
+              </Card>
             </motion.div>
 
             {/* Upgrade Plans */}
@@ -393,7 +381,7 @@ function SettingsPageContent() {
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Advanced Plan */}
-                    <div className="relative rounded-2xl p-4 bg-white/[0.03] shadow-[0_0_0_1px_rgba(168,85,247,0.1)] opacity-45 pointer-events-none">
+                    <Card className="p-4 opacity-50 pointer-events-none">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2.5">
                           <div className="w-9 h-9 rounded-xl bg-purple-400/[0.08] flex items-center justify-center">
@@ -413,10 +401,10 @@ function SettingsPageContent() {
                       <p className="text-[11px] text-slate-500 mt-2.5 leading-relaxed">
                         Dedicated OpenClaw instance with advanced AI model
                       </p>
-                    </div>
+                    </Card>
 
                     {/* Self-hosted Plan */}
-                    <div className="relative rounded-2xl p-4 bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.04)] opacity-45 pointer-events-none">
+                    <Card className="p-4 opacity-50 pointer-events-none">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2.5">
                           <div className="w-9 h-9 rounded-xl bg-white/[0.05] flex items-center justify-center">
@@ -437,7 +425,7 @@ function SettingsPageContent() {
                         <ExternalLink className="h-3 w-3" />
                         docs.openclaw.ai
                       </div>
-                    </div>
+                    </Card>
                   </div>
                 </motion.div>
               )}

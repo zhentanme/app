@@ -35,7 +35,7 @@ export function TokenRow({ token, index = 0, selected, onClick }: TokenRowProps)
     <motion.div
       className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 rounded-2xl transition-all min-h-[3.5rem] ${
         onClick ? "cursor-pointer hover:bg-white/[0.06]" : "hover:bg-white/[0.06]"
-      } ${selected ? "ring-2 ring-claw/50 bg-white/[0.06]" : ""}`}
+      } ${selected ? "ring-2 ring-gold/50 bg-white/[0.06]" : ""}`}
       initial={{ opacity: 0, y: 30, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{
@@ -56,7 +56,7 @@ export function TokenRow({ token, index = 0, selected, onClick }: TokenRowProps)
             unoptimized
           />
         ) : (
-          <span className="text-xs font-bold text-claw">
+          <span className="text-xs font-bold text-gold">
             {token.symbol.slice(0, 2)}
           </span>
         )}
@@ -67,7 +67,7 @@ export function TokenRow({ token, index = 0, selected, onClick }: TokenRowProps)
           <span className="text-sm font-medium text-slate-200 truncate inline-flex items-center gap-1.5">
             {token.name}
             {token.verified && (
-              <CheckCircle2 className="h-3.5 w-3.5 text-claw flex-shrink-0" aria-label="Verified" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-gold flex-shrink-0" aria-label="Verified" />
             )}
           </span>
           <span className="text-slate-600 shrink-0">·</span>
@@ -105,7 +105,7 @@ export function TokenRow({ token, index = 0, selected, onClick }: TokenRowProps)
           )}
         </div>
         {selected && (
-          <CheckCircle2 className="h-5 w-5 text-claw flex-shrink-0" aria-label="Selected" />
+          <CheckCircle2 className="h-5 w-5 text-gold flex-shrink-0" aria-label="Selected" />
         )}
       </div>
     </motion.div>
