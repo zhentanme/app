@@ -9,13 +9,26 @@ export interface DappMetadata {
 
 export interface PendingTransaction {
   id: string;
+  /**
+   * Data availability for this activity item:
+   * - "zhentan-only": in our DB but not yet on-chain (pending/in_review/rejected) or Zerion unavailable
+   * - "zerion-only":  on-chain transaction we didn't initiate (external receives, etc.)
+   * - "both":         executed via Zhentan and confirmed on-chain — has full risk data + Zerion op details
+   */
+  source?: "zhentan-only" | "zerion-only" | "both";
+  /** Zerion operation type: send | receive | trade | approve | execute | deposit | withdraw | … */
+  operationType?: string;
+  /** For trade operations: the token received in exchange */
+  tradeReceived?: { symbol: string; amount: string; iconUrl: string };
+  /** USD value of the primary transfer (from Zerion) */
+  valueUSD?: number;
   to: string;
   amount: string;
   token: string;
   /** If set, used in activity to show send vs receive. Defaults to "send" for proposed outbound transfers. */
   direction?: TransactionDirection;
   /** ERC20 token contract address (used for execution and display). */
-  usdcAddress: string;
+  tokenAddress: string;
   /** Token icon URL for display in activity (e.g. from Zerion). Stored when proposing. */
   tokenIconUrl?: string | null;
   /** When true, server skips risk analysis; client triggers execute. */
@@ -29,7 +42,7 @@ export interface PendingTransaction {
   partialSignatures: string;
   proposedAt: string;
   /** Transaction origin: "send_panel" for manual sends, "walletconnect" for DApp requests */
-  source?: "send_panel" | "walletconnect";
+  // source?: "send_panel" | "walletconnect";
   /** Raw hex calldata from DApp (for WalletConnect transactions) */
   calldata?: string;
   /** Native value in wei as string (for WalletConnect transactions) */
