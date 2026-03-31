@@ -70,7 +70,7 @@ function UsernameStep({
             onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
             placeholder="johndoe"
             maxLength={20}
-            className="w-full rounded-2xl bg-white/6 pl-9 pr-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:bg-white/[0.08] transition-all"
+            className="w-full rounded-2xl bg-white/6 pl-9 pr-4 py-3.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-gold/40 focus:bg-white/8 transition-all"
           />
         </div>
 
@@ -118,12 +118,12 @@ function ConnectStep({ onFinish }: { onFinish: () => void }) {
           className={`w-full flex items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-200 border ${
             telegramLinked
               ? "border-gold/30 bg-gold/8"
-              : "border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.06] hover:border-white/[0.12]"
+              : "border-white/8 bg-white/4 hover:bg-white/6 hover:border-white/12"
           }`}
         >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              telegramLinked ? "bg-gold/15" : "bg-white/[0.06]"
+              telegramLinked ? "bg-gold/15" : "bg-white/6"
             }`}
           >
             <svg className={`h-5 w-5 ${telegramLinked ? "text-gold" : "text-slate-400"}`} viewBox="0 0 24 24" fill="currentColor">
@@ -155,12 +155,12 @@ function ConnectStep({ onFinish }: { onFinish: () => void }) {
           className={`w-full flex items-center gap-4 rounded-2xl px-5 py-4 transition-all duration-200 border ${
             googleLinked
               ? "border-gold/30 bg-gold/8"
-              : "border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.06] hover:border-white/[0.12]"
+              : "border-white/8 bg-white/4 hover:bg-white/6 hover:border-white/12"
           }`}
         >
           <div
             className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-              googleLinked ? "bg-gold/15" : "bg-white/[0.06]"
+              googleLinked ? "bg-gold/15" : "bg-white/6"
             }`}
           >
             <svg className={`h-5 w-5 ${googleLinked ? "text-gold" : "text-slate-400"}`} viewBox="0 0 24 24">
@@ -230,7 +230,7 @@ function DoneStep({ username }: { username: string }) {
 
       <h2 className="text-2xl font-bold text-center mb-2">You're all set!</h2>
       <p className="text-sm text-muted-foreground text-center mb-2">
-        Welcome, <span className="text-gold font-semibold">@{username}</span>
+        Welcome, <span className="text-gold font-semibold">{username}</span>
       </p>
       <p className="text-xs text-muted-foreground/60 text-center max-w-xs mb-8">
         Your AI-secured wallet is ready. Every transaction will be screened and

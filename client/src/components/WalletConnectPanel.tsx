@@ -62,7 +62,7 @@ export function WalletConnectPanel() {
             value={uri}
             onChange={(e) => setUri(e.target.value)}
             placeholder="Paste WalletConnect URI (wc:...)"
-            className="flex-1 rounded-xl bg-white/6 border border-white/[0.08] px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-gold/50 transition-all"
+            className="flex-1 rounded-xl bg-white/6 border border-white/8 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-gold/50 transition-all"
             onKeyDown={(e) => e.key === "Enter" && handleConnect()}
           />
           <Button

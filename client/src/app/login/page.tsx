@@ -818,7 +818,7 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.04, type: "spring" }}
               whileHover={{ scale: 1.06 }}
-              className="px-3 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] text-xs text-slate-400 font-medium cursor-default"
+              className="px-3 py-1.5 rounded-full border border-white/8 bg-white/[0.03] text-xs text-slate-400 font-medium cursor-default"
             >
               {tech}
             </motion.span>

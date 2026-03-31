@@ -582,7 +582,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           To
         </label>
         {resolvedAddress && !resolving ? (
-          <div className="w-full flex items-center gap-3 rounded-2xl bg-white/[0.06] px-3.5 py-3 border border-white/[0.07]">
+          <div className="w-full flex items-center gap-3 rounded-2xl bg-white/6 px-3.5 py-3 border border-white/[0.07]">
             <span className="relative w-10 h-10 shrink-0 rounded-full overflow-hidden bg-white/10 flex items-center justify-center text-slate-300">
               {resolvedAvatar ? (
                 <Image
@@ -644,7 +644,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
             placeholder="Address, .eth, .bnb or Zhentan username"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            className="w-full rounded-2xl bg-white/[0.06] px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
+            className="w-full rounded-2xl bg-white/6 px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
           />
         )}
         {resolving && (

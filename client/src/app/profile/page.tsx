@@ -170,7 +170,7 @@ function ProfilePageContent() {
 
           {/* Username Section */}
           <motion.div variants={staggerItem}>
-            <div className="relative rounded-2xl overflow-hidden bg-white/[0.06] shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]">
+            <div className="relative rounded-2xl overflow-hidden bg-white/6 shadow-[0_0_0_1px_rgba(240,185,11,0.12),0_12px_40px_-12px_rgba(240,185,11,0.08)]">
               <div
                 className="h-px"
                 style={{
@@ -198,7 +198,7 @@ function ProfilePageContent() {
                       value={usernameInput}
                       onChange={(e) => setUsernameInput(e.target.value)}
                       placeholder="Enter username"
-                      className="w-full bg-white/[0.06] border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-claw/50"
+                      className="w-full bg-white/6 border border-white/10 rounded-xl px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-claw/50"
                       onKeyDown={(e) => { if (e.key === "Enter") saveUsername(); if (e.key === "Escape") setUsernameEditing(false); }}
                     />
                     {usernameError && (
@@ -214,7 +214,7 @@ function ProfilePageContent() {
                       </button>
                       <button
                         onClick={() => { setUsernameEditing(false); setUsernameInput(username ?? ""); setUsernameError(null); }}
-                        className="flex-1 py-2 rounded-xl bg-white/[0.06] text-white/60 text-xs"
+                        className="flex-1 py-2 rounded-xl bg-white/6 text-white/60 text-xs"
                       >
                         Cancel
                       </button>

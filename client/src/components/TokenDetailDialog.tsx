@@ -248,7 +248,7 @@ export function TokenDetailDialog({ open, onClose, token }: Props) {
       {loading && !details ? (
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white/[0.04] rounded-xl p-3">
+            <div key={i} className="bg-white/4 rounded-xl p-3">
               <Skeleton className="h-3 w-14 mb-2" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -261,7 +261,7 @@ export function TokenDetailDialog({ open, onClose, token }: Props) {
             { label: "FDV",         value: formatLargeUsd(details.marketData.fullyDilutedValuation) },
             { label: "Circulating", value: formatSupply(details.marketData.circulatingSupply) + ` ${displaySymbol}` },
           ].map(({ label, value }) => (
-            <div key={label} className="bg-white/[0.04] rounded-xl p-3">
+            <div key={label} className="bg-white/4 rounded-xl p-3">
               <p className="text-[10px] text-slate-500 uppercase tracking-wide mb-1">{label}</p>
               <p className="text-xs font-semibold text-white truncate">{value}</p>
             </div>

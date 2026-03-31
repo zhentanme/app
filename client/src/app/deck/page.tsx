@@ -712,7 +712,7 @@ export default function DeckPage() {
       {/* Bottom navigation */}
       <div className="flex items-center justify-center gap-4 py-3 border-t border-white/[0.04] shrink-0">
         <button onClick={() => go(current - 1)} disabled={current === 0}
-          className="w-9 h-9 rounded-full border border-white/[0.08] flex items-center justify-center text-slate-500 hover:text-white hover:border-gold/30 disabled:opacity-25 disabled:cursor-not-allowed transition-colors">
+          className="w-9 h-9 rounded-full border border-white/8 flex items-center justify-center text-slate-500 hover:text-white hover:border-gold/30 disabled:opacity-25 disabled:cursor-not-allowed transition-colors">
           <ChevronLeft className="w-4 h-4" />
         </button>
 
@@ -726,7 +726,7 @@ export default function DeckPage() {
         </div>
 
         <button onClick={() => go(current + 1)} disabled={current === total - 1}
-          className="w-9 h-9 rounded-full border border-white/[0.08] flex items-center justify-center text-slate-500 hover:text-white hover:border-gold/30 disabled:opacity-25 disabled:cursor-not-allowed transition-colors">
+          className="w-9 h-9 rounded-full border border-white/8 flex items-center justify-center text-slate-500 hover:text-white hover:border-gold/30 disabled:opacity-25 disabled:cursor-not-allowed transition-colors">
           <ChevronRight className="w-4 h-4" />
         </button>
       </div>
