@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check, ArrowDownLeft } from "lucide-react";
+import { truncateAddress } from "@/lib/format";
 
 interface ReceivePanelProps {
   safeAddress: string;
@@ -42,7 +43,7 @@ export function ReceivePanel({ safeAddress }: ReceivePanelProps) {
       >
         <span className="flex items-center justify-between gap-2">
           <span className="font-mono text-xs sm:text-sm text-slate-300 break-all">
-            {safeAddress}
+            {truncateAddress(safeAddress, 32)}
           </span>
           {copied ? (
             <Check className="h-4 w-4 text-gold shrink-0" />

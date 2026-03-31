@@ -223,12 +223,11 @@ export function WCTransactionRequest() {
             href={`${BSC_EXPLORER_URL}/tx/${requestTxHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full rounded-2xl py-3 bg-white/[0.08] text-slate-300 hover:text-white hover:bg-white/12 transition-colors text-sm font-medium"
+            className="flex items-center justify-center gap-2 w-full rounded-2xl py-3 bg-white/8 text-slate-300 hover:text-white hover:bg-white/12 transition-colors text-sm font-medium"
           >
             <span className="relative w-[18px] h-[18px] shrink-0">
               <Image src="/bscscan.png" alt="" fill className="object-contain rounded" sizes="18px" />
             </span>
-            <ExternalLink className="h-4 w-4" />
             View on BSC Explorer
           </a>
           <Button type="button" onClick={resetRequestState} className="w-full py-3.5">
