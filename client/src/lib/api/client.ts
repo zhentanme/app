@@ -10,6 +10,8 @@ import { executeApi } from "./execute";
 import { queueApi } from "./queue";
 import { resolveApi } from "./resolve";
 import { portfolioApi } from "./portfolio";
+import { usersApi } from "./users";
+import { campaignsApi } from "./campaigns";
 
 /** A bound fetch function with BASE prepended — passed to each API module. */
 export type ApiFetchFn = (path: string, init?: RequestInit) => Promise<Response>;
@@ -68,6 +70,8 @@ export function useApiClient() {
       queue: queueApi(req),
       resolve: resolveApi(req),
       portfolio: portfolioApi(req),
+      users: usersApi(req),
+      campaigns: campaignsApi(req),
     }),
     [req]
   );

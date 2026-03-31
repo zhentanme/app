@@ -2,6 +2,7 @@ import { Router, Request, Response, type IRouter } from "express";
 import { createPublicClient, http, isAddress, zeroAddress, type Address } from "viem";
 import { mainnet, bsc } from "viem/chains";
 import { normalize, namehash } from "viem/ens";
+import { getUserByUsername } from "../lib/supabase/index.js";
 
 // ── RPC fallback lists ────────────────────────────────────────────────────────
 // Primary comes from env; public endpoints serve as fallbacks.
@@ -140,20 +141,27 @@ export function createResolveRouter(): IRouter {
 
       // Pass through plain addresses unchanged
       if (name.startsWith("0x") && name.length === 42 && isAddress(name)) {
-        res.json({ address: name });
+        res.json({ address: name, source: "address" });
         return;
       }
 
       let address: Address | null = null;
+      let source: string;
 
       if (name.endsWith(".eth")) {
         address = await resolveEns(name);
+        source = "ens";
       } else if (name.endsWith(".bnb")) {
         address = await resolveBnb(name);
+        source = "bnb";
       } else {
-        res.status(400).json({
-          error: "Unsupported name format. Supported: 0x address, .eth (ENS), .bnb (SPACE ID)",
-        });
+        // Zhentan username lookup
+        const user = await getUserByUsername(name);
+        if (!user) {
+          res.status(404).json({ error: `No Zhentan user found with username "${name}"` });
+          return;
+        }
+        res.json({ address: user.safe_address, name: user.username, source: "zhentan" });
         return;
       }
 
@@ -162,9 +170,9 @@ export function createResolveRouter(): IRouter {
         return;
       }
 
-      res.json({ address, name });
+      res.json({ address, name, source });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Resolve failed";
+      const message = err instanceof Error ? err.message : "Resolve error";
       res.status(500).json({ error: message });
     }
   });

@@ -12,6 +12,8 @@ import { createResolveRouter } from "./routes/resolve.js";
 import { createRulesRouter } from "./routes/rules.js";
 import { createEventsRouter } from "./routes/events.js";
 import { createAnalyzeRouter } from "./routes/analyze.js";
+import { createUsersRouter } from "./routes/users.js";
+import { createCampaignsRouter } from "./routes/campaigns.js";
 import { editNotification } from "./notify.js";
 
 const app = express();
@@ -70,6 +72,8 @@ app.use("/status", auth, createStatusRouter());
 app.use("/rules", auth, createRulesRouter());
 app.use("/resolve", auth, createResolveRouter());
 app.use("/analyze", auth, createAnalyzeRouter());
+app.use("/users", auth, createUsersRouter());
+app.use("/campaigns",  createCampaignsRouter());
 
 app.post("/notify-resolve", auth, async (req, res) => {
   const { txId, action, txHash, safeAddress } = req.body ?? {};

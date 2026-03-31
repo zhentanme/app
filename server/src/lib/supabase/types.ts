@@ -38,6 +38,17 @@ export interface TransactionRow {
   screening_disabled: boolean;
 }
 
+export interface UserDetailsRow {
+  safe_address: string;
+  email: string | null;
+  telegram_id: string | null;
+  name: string | null;
+  username: string | null;
+  signer_address: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface UserSettingsRow {
   safe_address: string;
   screening_mode: boolean;
@@ -142,6 +153,29 @@ export interface TokenPatternRow {
   first_seen: string | null;
   last_used: string | null;
   updated_at: string;
+}
+
+export interface CampaignRow {
+  id: string;
+  name: string;
+  description: string | null;
+  token_amount: string;
+  max_claims: number;
+  requirements: Record<string, unknown>;
+  starts_at: string;
+  ends_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CampaignClaimRow {
+  campaign_id: string;
+  safe_address: string;
+  claimed_at: string;
+  token_amount: string;
+  status: "pending" | "paid" | "failed";
+  tx_hash: string | null;
+  paid_at: string | null;
 }
 
 export interface UserRuleRow {

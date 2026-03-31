@@ -14,6 +14,7 @@ import { createWalletClient, custom } from "viem";
 import { bsc } from "viem/chains";
 import type { Address, LocalAccount } from "viem";
 import { useSafeAddress } from "@/lib/useSafeAddress";
+import { apiFetch } from "@/lib/api/client";
 
 export interface AuthUser {
   email?: string;
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { identityToken } = useIdentityToken();
   console.log(identityToken)
   const hasAttemptedCreate = useRef(false);
+  const hasSyncedUser = useRef(false);
 
   const primaryWallet = useMemo(
     () => wallets.find((w) => w.walletClientType === "privy"),
@@ -113,6 +115,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [privyLogout]);
 
   const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address ?? undefined);
+
+  useEffect(() => {
+    if (!safeAddress || !identityToken || hasSyncedUser.current) return;
+    hasSyncedUser.current = true;
+    const google = (privyUser as { google?: { email?: string; name?: string } } | null)?.google;
+    apiFetch("/users", identityToken, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        safeAddress,
+        email: google?.email,
+        name: google?.name,
+        telegramId: telegramUserId,
+        signerAddress: wallet?.address,
+      }),
+    }).catch((e) => console.error("Failed to sync user details:", e));
+  }, [safeAddress, identityToken, privyUser, telegramUserId, wallet?.address]);
 
   const getOwnerAccount = useCallback(async (): Promise<LocalAccount | null> => {
     if (!primaryWallet) return null;
