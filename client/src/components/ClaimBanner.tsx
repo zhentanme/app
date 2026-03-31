@@ -109,7 +109,7 @@ export function ClaimBanner({
   return (
     <>
       <AnimatePresence>
-       <div className="lg:mx-4">
+       <div className="mx-4">
        {!dismissed && (
           <motion.button
             type="button"
