@@ -109,7 +109,8 @@ export function ClaimBanner({
   return (
     <>
       <AnimatePresence>
-        {!dismissed && (
+       <div className="lg:mx-4">
+       {!dismissed && (
           <motion.button
             type="button"
             onClick={() => setOpen(true)}
@@ -178,6 +179,7 @@ export function ClaimBanner({
             </div>
           </motion.button>
         )}
+       </div>
       </AnimatePresence>
 
       <Dialog open={open} onClose={() => setOpen(false)} title="Claim Free Tokens">
