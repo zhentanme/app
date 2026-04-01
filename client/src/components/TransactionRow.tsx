@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { TransactionWithStatus } from "@/types";
-import { truncateAddress } from "@/lib/format";
+import { truncateAddress, formatTokenAmount } from "@/lib/format";
 import { StatusBadge } from "./StatusBadge";
 import {
   ArrowUpRight,
@@ -54,7 +54,9 @@ function getConfig(tx: TransactionWithStatus): OpConfig {
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString("en-US", {
-    hour: "2-digit", minute: "2-digit", hour12: false,
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
   });
 }
 
@@ -99,7 +101,7 @@ function AmountDisplay({ tx, config }: AmountProps) {
   if (op === "approve") {
     return (
       <p className="text-sm font-semibold text-white tabular-nums text-right">
-        {tx.amount ? `${tx.amount} ${tx.token}` : `Unlimited${tx.token ? ` ${tx.token}` : ""}`}
+        {tx.amount ? `${formatTokenAmount(tx.amount)} ${tx.token}` : `Unlimited${tx.token ? ` ${tx.token}` : ""}`}
       </p>
     );
   }
@@ -116,11 +118,11 @@ function AmountDisplay({ tx, config }: AmountProps) {
     return (
       <div className="text-right tabular-nums">
         <p className="text-sm font-semibold text-emerald-400">
-          +{tx.tradeReceived.amount} {tx.tradeReceived.symbol}
+          +{formatTokenAmount(tx.tradeReceived.amount)} {tx.tradeReceived.symbol}
         </p>
         {tx.amount && tx.token && (
           <p className="text-xs text-slate-500 mt-0.5">
-            -{tx.amount} {tx.token}
+            -{formatTokenAmount(tx.amount)} {tx.token}
           </p>
         )}
       </div>
@@ -132,7 +134,7 @@ function AmountDisplay({ tx, config }: AmountProps) {
   return (
     <div className="text-right tabular-nums">
       <p className={`text-sm font-semibold ${isPositive ? "text-emerald-400" : "text-white"}`}>
-        {sign}{tx.amount} {tx.token}
+        {sign}{formatTokenAmount(tx.amount)} {tx.token}
       </p>
       {usd && <p className="text-xs text-slate-500 mt-0.5">{usd}</p>}
     </div>

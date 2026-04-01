@@ -290,72 +290,183 @@ export async function fetchTokenChartData(
 // Transfer history
 // ---------------------------------------------------------------------------
 
-const PAYMASTER = "0xd8baa107006c93a030d1455a2ef43261b384f21c";
-const ENTRY_POINT = "0x0000000071727de22e5e9d8baf0edac6f37da032";
+const BSC_CHAIN = "binance-smart-chain";
+const SYSTEM_ADDRESSES = new Set([
+  "0xd8baa107006c93a030d1455a2ef43261b384f21c", // Pimlico paymaster
+  "0x0000000071727de22e5e9d8baf0edac6f37da032", // ERC-4337 EntryPoint
+]);
 
+/** Operations where the net effect is the user receiving value */
+const RECEIVE_OPS = new Set(["receive", "withdraw", "borrow", "mint"]);
+
+// ── Public types ──────────────────────────────────────────────────────────────
+
+/** A single token involved in a transfer */
+export interface ZerionToken {
+  symbol: string;
+  name: string;
+  /** BSC contract address; empty string for native BNB */
+  address: string;
+  iconUrl: string | null;
+  verified: boolean;
+}
+
+/** One side of a token movement within a transaction */
+export interface ZerionTransfer {
+  direction: "in" | "out" | "self";
+  token: ZerionToken;
+  /** Formatted human-readable amount */
+  amount: string;
+  valueUSD: number | null;
+  price: number | null;
+  sender: string;
+  recipient: string;
+}
+
+/**
+ * Normalised on-chain transaction item.
+ *
+ * Reading rules:
+ *   send / deposit / repay / burn  → user sent `token` `amount`
+ *   receive / withdraw / borrow    → user received `token` `amount`
+ *   trade                          → user sold `token` `amount`, got back `received`
+ *   execute                        → contract call, token fields are empty
+ */
 export interface ZerionHistoryItem {
   hash: string;
   timestamp: string;
-  /** Zerion operation type: send | receive | trade | approve | execute | deposit | withdraw | borrow | repay | mint | burn | … */
-  operation: string;
-  /** UI direction — "receive" for net-incoming ops, "send" for net-outgoing/neutral */
+  /** Zerion operation_type: send | receive | trade | approve | execute | deposit | withdraw | … */
+  operationType: string;
+  /** Net direction from the user's perspective */
   direction: "send" | "receive";
-  tokenSymbol: string;
-  tokenAddress: string;
-  tokenIconUrl: string;
-  /** Human-readable amount */
+
+  // ── Token that moved ─────────────────────────────────────────────────────
+  /** The token sent (sends/trade-sold) or received (receives). Empty for pure execute ops. */
+  token: ZerionToken;
+  /** Formatted human-readable amount */
   amount: string;
-  valueUSD: number;
-  sender: string;
-  recipient: string;
-  /** Populated for trades: the token received in exchange */
-  tradeReceived?: { symbol: string; amount: string; iconUrl: string };
+  /** USD value of this transfer, null if Zerion doesn't have pricing */
+  valueUSD: number | null;
+
+  // ── Counterparty ─────────────────────────────────────────────────────────
+  /** Who sent — the wallet address for outgoing ops, the counterparty for incoming */
+  from: string;
+  /** Who received — the counterparty for outgoing ops, the wallet address for incoming */
+  to: string;
+
+  // ── Trade only ───────────────────────────────────────────────────────────
+  /** The token bought in exchange (only present for trade operations) */
+  received?: {
+    token: ZerionToken;
+    amount: string;
+    valueUSD: number | null;
+  };
+
+  /** All individual token movements in this tx, for detail views */
+  transfers: ZerionTransfer[];
+  /** Zerion spam/dust flag */
+  isTrash: boolean;
 }
 
-/** Operations where the user receives value (shown with green "in" styling) */
-const RECEIVE_LIKE_OPS = new Set(["receive", "withdraw", "borrow", "mint"]);
+// ── Internal raw types ────────────────────────────────────────────────────────
 
-function formatAmount(float: number): string {
-  if (float >= 1) return float.toFixed(2);
-  if (float >= 0.0001) return float.toFixed(6);
-  return float.toPrecision(4);
+interface RawImpl {
+  chain_id: string;
+  address: string;
+  decimals: number;
+}
+
+interface RawFungibleInfo {
+  name?: string;
+  symbol?: string;
+  icon?: { url?: string } | null;
+  flags?: { verified?: boolean };
+  implementations?: RawImpl[];
 }
 
 interface RawTransfer {
+  fungible_info?: RawFungibleInfo;
   direction?: string;
-  fungible_info?: {
-    symbol?: string;
-    icon?: { url?: string };
-    implementations?: { address?: string }[];
-  };
   quantity?: { float?: number };
-  value?: number;
+  value?: number | null;
+  price?: number | null;
   sender?: string;
   recipient?: string;
 }
 
-function isSystemAddress(addr?: string): boolean {
-  const a = (addr ?? "").toLowerCase();
-  return a === PAYMASTER || a === ENTRY_POINT;
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/** Extract the BSC-specific contract address for a fungible */
+function bscAddress(fi?: RawFungibleInfo): string {
+  return fi?.implementations?.find((i) => i.chain_id === BSC_CHAIN)?.address ?? "";
 }
 
-function pickTransfer(transfers: RawTransfer[], direction: "in" | "out"): RawTransfer | undefined {
+/** Map a Zerion fungible_info to our ZerionToken shape */
+function toToken(fi?: RawFungibleInfo): ZerionToken {
+  return {
+    symbol: fi?.symbol ?? "?",
+    name: fi?.name ?? "",
+    address: bscAddress(fi),
+    iconUrl: fi?.icon?.url ?? null,
+    verified: fi?.flags?.verified ?? false,
+  };
+}
+
+/**
+ * Format a token amount as a plain numeric string (no locale commas).
+ * The client's formatTokenAmount will handle final display formatting.
+ */
+function formatAmount(n: number): string {
+  if (n >= 1) return parseFloat(n.toFixed(4)).toString();
+  if (n >= 0.0001) return n.toFixed(6).replace(/\.?0+$/, "");
+  return n.toPrecision(4);
+}
+
+/** Map a raw Zerion transfer entry to our ZerionTransfer shape */
+function toTransfer(t: RawTransfer): ZerionTransfer | null {
+  if (!t.fungible_info) return null;
+  const qty = t.quantity?.float ?? 0;
+  return {
+    direction: (t.direction ?? "out") as "in" | "out" | "self",
+    token: toToken(t.fungible_info),
+    amount: qty > 0 ? formatAmount(qty) : "",
+    valueUSD: t.value ?? null,
+    price: t.price ?? null,
+    sender: t.sender ?? "",
+    recipient: t.recipient ?? "",
+  };
+}
+
+/**
+ * Pick the first transfer with the given direction, skipping system contracts
+ * (EntryPoint, paymaster) as recipients and entries without a token symbol.
+ */
+function pickDir(
+  transfers: ZerionTransfer[],
+  dir: "in" | "out" | "self"
+): ZerionTransfer | undefined {
   return transfers.find(
-    (t) => t.direction === direction && t.fungible_info != null && !isSystemAddress(t.recipient)
+    (t) =>
+      t.direction === dir &&
+      t.token.symbol !== "?" &&
+      !SYSTEM_ADDRESSES.has(t.recipient.toLowerCase())
   );
 }
 
+// ── Main fetch function ───────────────────────────────────────────────────────
+
 export async function fetchTransfers(
   address: string,
-  pageSize = 100,
+  pageSize = 25,
   maxRetries = 2
 ): Promise<ZerionHistoryItem[]> {
   if (!ZERION_API_KEY) return [];
 
   const params = new URLSearchParams({
     currency: "usd",
+    "filter[chain_ids]": BSC_CHAIN,   // server-side BSC filter — no need to filter again
+    "filter[trash]": "only_non_trash", // skip spam/dust tokens
     "page[size]": pageSize.toString(),
-    "filter[trash]": "only_non_trash",
   });
   const url = `${BASE_URL}/wallets/${address}/transactions/?${params}`;
   const options: RequestInit = {
@@ -367,93 +478,113 @@ export async function fetchTransfers(
       const res = await fetch(url, options);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
-      const data: unknown[] = json?.data ?? [];
 
       const items: ZerionHistoryItem[] = [];
 
-      for (const entry of data) {
+      for (const entry of (json?.data ?? []) as unknown[]) {
         const tx = entry as {
-          attributes: Record<string, unknown>;
-          relationships?: { chain?: { data?: { id?: string } } };
+          attributes: {
+            operation_type?: string;
+            hash?: string;
+            mined_at?: string;
+            sent_from?: string;
+            sent_to?: string;
+            transfers?: RawTransfer[];
+            flags?: { is_trash?: boolean };
+          };
         };
+
         const attrs = tx.attributes;
-        const zerionChainId = (tx.relationships?.chain?.data?.id ?? "") as string;
-
-        // BSC only
-        if (getChainId(zerionChainId) !== BNB_CHAIN_ID) continue;
-
-        const operation = (attrs.operation_type as string) ?? "execute";
-        const hash = attrs.hash as string;
-        const timestamp = attrs.mined_at as string;
+        const hash = attrs.hash;
+        const timestamp = attrs.mined_at;
         if (!hash || !timestamp) continue;
 
-        const rawTransfers = ((attrs.transfers as RawTransfer[]) ?? []).filter(
-          (t) => t.fungible_info != null
-        );
+        const operationType = attrs.operation_type ?? "execute";
+        const isTrash = attrs.flags?.is_trash ?? false;
+        const sentFrom = attrs.sent_from ?? "";
+        const sentTo = attrs.sent_to ?? "";
 
-        const direction: "send" | "receive" = RECEIVE_LIKE_OPS.has(operation) ? "receive" : "send";
+        // Build normalised transfers list, filtering out entries without fungible info
+        const transfers: ZerionTransfer[] = (attrs.transfers ?? []).flatMap((t) => {
+          const r = toTransfer(t);
+          return r ? [r] : [];
+        });
 
-        // --- trade: pick "out" as primary, "in" as received ---
-        if (operation === "trade") {
-          const outTx = pickTransfer(rawTransfers, "out");
-          const inTx  = pickTransfer(rawTransfers, "in");
-          if (!outTx) continue;
+        // ── TRADE ────────────────────────────────────────────────────────────
+        // token = sold (out), received = bought (in)
+        if (operationType === "trade") {
+          const sold = pickDir(transfers, "out");
+          const bought = pickDir(transfers, "in");
+          if (!sold) continue; // can't display without a sold token
 
-          const outQty = outTx.quantity?.float ?? 0;
-          if (outQty === 0) continue;
-
-          const inQty = inTx?.quantity?.float ?? 0;
           items.push({
-            hash, timestamp, operation,
+            hash, timestamp, operationType, isTrash,
             direction: "send",
-            tokenSymbol: outTx.fungible_info?.symbol ?? "?",
-            tokenAddress: outTx.fungible_info?.implementations?.[0]?.address ?? "",
-            tokenIconUrl: outTx.fungible_info?.icon?.url ?? "",
-            amount: formatAmount(outQty),
-            valueUSD: outTx.value ?? 0,
-            sender: outTx.sender ?? "",
-            recipient: outTx.recipient ?? "",
-            tradeReceived: inTx?.fungible_info
-              ? {
-                  symbol: inTx.fungible_info.symbol ?? "?",
-                  amount: formatAmount(inQty),
-                  iconUrl: inTx.fungible_info.icon?.url ?? "",
-                }
+            token: sold.token,
+            amount: sold.amount,
+            valueUSD: sold.valueUSD,
+            from: sold.sender || sentFrom,
+            to: sold.recipient || sentTo,
+            received: bought
+              ? { token: bought.token, amount: bought.amount, valueUSD: bought.valueUSD }
               : undefined,
+            transfers,
           });
           continue;
         }
 
-        // --- receive-like: pick "in" transfer ---
-        // --- send-like & everything else: pick "out" transfer, fallback to "in" ---
-        const primaryDir = RECEIVE_LIKE_OPS.has(operation) ? "in" : "out";
-        const primary =
-          pickTransfer(rawTransfers, primaryDir) ??
-          pickTransfer(rawTransfers, primaryDir === "in" ? "out" : "in");
+        // ── RECEIVE-LIKE (receive | withdraw | borrow | mint) ─────────────────
+        // token = what came in
+        if (RECEIVE_OPS.has(operationType)) {
+          const incoming = pickDir(transfers, "in");
+          if (!incoming) continue;
 
-        // For approve/execute-like ops with no transfers, still create an entry without token details
-        if (!primary) {
-          if (operation === "approve" || operation === "execute") {
-            items.push({
-              hash, timestamp, operation, direction,
-              tokenSymbol: "", tokenAddress: "", tokenIconUrl: "",
-              amount: "", valueUSD: 0, sender: "", recipient: "",
-            });
-          }
+          items.push({
+            hash, timestamp, operationType, isTrash,
+            direction: "receive",
+            token: incoming.token,
+            amount: incoming.amount,
+            valueUSD: incoming.valueUSD,
+            from: incoming.sender || sentFrom,
+            to: incoming.recipient || address,
+            transfers,
+          });
           continue;
         }
 
-        const qty = primary.quantity?.float ?? 0;
+        // ── EXECUTE (no token transfers — pure contract call) ─────────────────
+        if (operationType === "execute" && transfers.length === 0) {
+          items.push({
+            hash, timestamp, operationType, isTrash,
+            direction: "send",
+            token: { symbol: "", name: "", address: "", iconUrl: null, verified: false },
+            amount: "",
+            valueUSD: null,
+            from: sentFrom,
+            to: sentTo,
+            transfers: [],
+          });
+          continue;
+        }
+
+        // ── SEND / DEPOSIT / REPAY / BURN and everything else ─────────────────
+        // token = outgoing; fallback to self-transfer, then incoming
+        const outgoing =
+          pickDir(transfers, "out") ??
+          pickDir(transfers, "self") ??
+          pickDir(transfers, "in");
+
+        if (!outgoing) continue;
 
         items.push({
-          hash, timestamp, operation, direction,
-          tokenSymbol: primary.fungible_info?.symbol ?? "?",
-          tokenAddress: primary.fungible_info?.implementations?.[0]?.address ?? "",
-          tokenIconUrl: primary.fungible_info?.icon?.url ?? "",
-          amount: qty > 0 ? formatAmount(qty) : "",
-          valueUSD: primary.value ?? 0,
-          sender: primary.sender ?? "",
-          recipient: primary.recipient ?? "",
+          hash, timestamp, operationType, isTrash,
+          direction: "send",
+          token: outgoing.token,
+          amount: outgoing.amount,
+          valueUSD: outgoing.valueUSD,
+          from: outgoing.sender || sentFrom,
+          to: outgoing.recipient || sentTo,
+          transfers,
         });
       }
 

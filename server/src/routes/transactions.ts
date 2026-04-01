@@ -24,16 +24,19 @@ function zerionOnlyToActivity(z: ZerionHistoryItem, safeAddress: string): Transa
   return {
     id: `zerion:${z.hash}`,
     source: "zerion-only",
-    operationType: z.operation,
-    tradeReceived: z.tradeReceived,
-    valueUSD: z.valueUSD,
-    // For receives, tx.to is used as the "from" display address in TransactionRow
-    to: z.direction === "send" ? z.recipient : z.sender,
-    amount: z.amount,
-    token: z.tokenSymbol,
-    tokenIconUrl: z.tokenIconUrl || null,
+    operationType: z.operationType,
     direction: z.direction,
-    tokenAddress: z.tokenAddress,
+    token: z.token.symbol,
+    tokenAddress: z.token.address,
+    tokenIconUrl: z.token.iconUrl,
+    amount: z.amount,
+    valueUSD: z.valueUSD ?? undefined,
+    tradeReceived: z.received
+      ? { symbol: z.received.token.symbol, amount: z.received.amount, iconUrl: z.received.token.iconUrl ?? "" }
+      : undefined,
+    // "to" doubles as the display counterparty:
+    //   receives → "from <z.from>", sends → "to <z.to>"
+    to: z.direction === "receive" ? z.from : z.to,
     proposedBy: safeAddress,
     signatures: [],
     ownerAddresses: [],
@@ -49,20 +52,29 @@ function zerionOnlyToActivity(z: ZerionHistoryItem, safeAddress: string): Transa
   };
 }
 
-/** Merge Zerion op data into a Zhentan record — Zerion wins on operation/direction/token details */
-function mergeWithZerion(
-  tx: TransactionWithStatus,
-  z: ZerionHistoryItem
-): TransactionWithStatus {
+/**
+ * Merge Zerion op data into a Zhentan record.
+ * Zerion wins on all token details (symbol, address, icon, amount, USD value) when present,
+ * since it reflects actual on-chain state rather than what was proposed.
+ * Zhentan's `to` is preserved for sends (the intended recipient from the proposal).
+ */
+function mergeWithZerion(tx: TransactionWithStatus, z: ZerionHistoryItem): TransactionWithStatus {
   return {
     ...tx,
     source: "both",
-    operationType: z.operation,
+    operationType: z.operationType,
     direction: z.direction,
-    tradeReceived: z.tradeReceived,
-    valueUSD: z.valueUSD,
-    // Prefer Zerion token details (richer) but fall back to what we stored
-    tokenIconUrl: z.tokenIconUrl || tx.tokenIconUrl,
+    // Zerion token details override Zhentan's stored values when available
+    token:        z.token.symbol   || tx.token,
+    tokenAddress: z.token.address  || tx.tokenAddress,
+    tokenIconUrl: z.token.iconUrl  ?? tx.tokenIconUrl,
+    amount:       z.amount         || tx.amount,
+    valueUSD:     z.valueUSD       ?? tx.valueUSD,
+    tradeReceived: z.received
+      ? { symbol: z.received.token.symbol, amount: z.received.amount, iconUrl: z.received.token.iconUrl ?? "" }
+      : undefined,
+    // For receives, Zerion knows the actual sender. For sends, keep our stored recipient.
+    to: z.direction === "receive" ? z.from : tx.to,
   };
 }
 
