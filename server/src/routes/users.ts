@@ -21,7 +21,7 @@ export function createUsersRouter(): IRouter {
 
   // POST /users — upsert on login
   router.post("/", async (req: Request, res: Response) => {
-    const { safeAddress, email, name, telegramId, signerAddress, username } = req.body ?? {};
+    const { safeAddress, email, name, telegramId, signerAddress, username, onboardingCompleted } = req.body ?? {};
     if (!safeAddress) {
       res.status(400).json({ error: "Missing required field: safeAddress" });
       return;
@@ -33,6 +33,7 @@ export function createUsersRouter(): IRouter {
         ...(telegramId !== undefined && { telegram_id: telegramId }),
         ...(signerAddress !== undefined && { signer_address: signerAddress }),
         ...(username !== undefined && { username: username.toLowerCase() }),
+        ...(onboardingCompleted !== undefined && { onboarding_completed: onboardingCompleted }),
       });
       const details = await getUserDetails(safeAddress);
       res.json({ user: details });
