@@ -509,7 +509,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         <button
           type="button"
           onClick={() => setTokenSelectorOpen(true)}
-          className="w-full flex items-center gap-3 rounded-2xl bg-white/6 p-4 text-left hover:bg-white/8 transition-colors min-h-[2.75rem] touch-manipulation"
+          className="w-full flex items-center gap-3 rounded-2xl bg-white/6 p-4 text-left hover:bg-white/8 transition-colors min-h-11 touch-manipulation"
         >
           {selectedToken ? (
             <>
@@ -644,7 +644,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
             placeholder="Address, .eth, .bnb or Zhentan username"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            className="w-full rounded-2xl bg-white/6 px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/8 transition-all min-h-[2.75rem] touch-manipulation"
+            className="w-full rounded-2xl bg-white/6 px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/8 transition-all min-h-11 touch-manipulation"
           />
         )}
         {resolving && (
