@@ -8,13 +8,17 @@ import { TransactionDetailDialog } from "./TransactionDetailDialog";
 import { Skeleton } from "./ui/Skeleton";
 import { Activity } from "lucide-react";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06 },
-  },
-};
+function groupByDate(txs: TransactionWithStatus[]): { dateLabel: string; items: TransactionWithStatus[] }[] {
+  const map = new Map<string, TransactionWithStatus[]>();
+  for (const tx of txs) {
+    const label = new Date(tx.proposedAt).toLocaleDateString("en-US", {
+      year: "numeric", month: "long", day: "numeric",
+    });
+    if (!map.has(label)) map.set(label, []);
+    map.get(label)!.push(tx);
+  }
+  return Array.from(map.entries()).map(([dateLabel, items]) => ({ dateLabel, items }));
+}
 
 interface ActivityListProps {
   transactions: TransactionWithStatus[];
@@ -25,21 +29,26 @@ interface ActivityListProps {
 export function ActivityList({ transactions, loading, embedded }: ActivityListProps) {
   const [selectedTx, setSelectedTx] = useState<TransactionWithStatus | null>(null);
 
+  const groups = groupByDate(transactions);
+
+  // Running index across all groups for stagger animation
+  let rowIndex = 0;
+
   const content = (
     <>
       {loading ? (
         <div className="space-y-0.5">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-4 py-3.5"
-            >
-              <Skeleton className="h-10 w-10 rounded-xl shrink-0" />
+            <div key={i} className="flex items-center gap-3 px-4 py-3">
+              <Skeleton className="h-10 w-10 rounded-full shrink-0" />
               <div className="flex-1 min-w-0 space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-3 w-32" />
               </div>
-              <Skeleton className="h-6 w-16 rounded-full shrink-0" />
+              <div className="space-y-1.5 flex flex-col items-end">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-3 w-12" />
+              </div>
             </div>
           ))}
         </div>
@@ -54,26 +63,33 @@ export function ActivityList({ transactions, loading, embedded }: ActivityListPr
             <Activity className="h-6 w-6" />
           </div>
           <p className="text-sm font-medium text-slate-400">No activity yet</p>
-          <p className="mt-1 text-xs text-slate-600">
-            Transfers will appear here
-          </p>
+          <p className="mt-1 text-xs text-slate-600">Transfers will appear here</p>
         </motion.div>
       ) : (
-        <motion.div
-          className="divide-y divide-white/[0.04]"
-          initial="hidden"
-          animate="visible"
-          variants={containerVariants}
-        >
-          {transactions.map((tx, i) => (
-            <TransactionRow
-              key={tx.id}
-              tx={tx}
-              index={i}
-              onClick={() => setSelectedTx(tx)}
-            />
+        <div>
+          {groups.map(({ dateLabel, items }) => (
+            <div key={dateLabel}>
+              {/* Date header */}
+              <p className="px-4 pt-4 pb-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                {dateLabel}
+              </p>
+              {/* Rows for this date */}
+              <div className="divide-y divide-white/[0.04]">
+                {items.map((tx) => {
+                  const idx = rowIndex++;
+                  return (
+                    <TransactionRow
+                      key={tx.id}
+                      tx={tx}
+                      index={idx}
+                      onClick={() => setSelectedTx(tx)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       )}
 
       <TransactionDetailDialog

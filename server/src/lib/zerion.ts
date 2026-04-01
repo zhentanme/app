@@ -286,6 +286,189 @@ export async function fetchTokenChartData(
   return Object.fromEntries(periods.map((p, i) => [p, results[i]])) as Record<ChartPeriod, TokenChartData | null>;
 }
 
+// ---------------------------------------------------------------------------
+// Transfer history
+// ---------------------------------------------------------------------------
+
+const PAYMASTER = "0xd8baa107006c93a030d1455a2ef43261b384f21c";
+const ENTRY_POINT = "0x0000000071727de22e5e9d8baf0edac6f37da032";
+
+export interface ZerionHistoryItem {
+  hash: string;
+  timestamp: string;
+  /** Zerion operation type: send | receive | trade | approve | execute | deposit | withdraw | borrow | repay | mint | burn | … */
+  operation: string;
+  /** UI direction — "receive" for net-incoming ops, "send" for net-outgoing/neutral */
+  direction: "send" | "receive";
+  tokenSymbol: string;
+  tokenAddress: string;
+  tokenIconUrl: string;
+  /** Human-readable amount */
+  amount: string;
+  valueUSD: number;
+  sender: string;
+  recipient: string;
+  /** Populated for trades: the token received in exchange */
+  tradeReceived?: { symbol: string; amount: string; iconUrl: string };
+}
+
+/** Operations where the user receives value (shown with green "in" styling) */
+const RECEIVE_LIKE_OPS = new Set(["receive", "withdraw", "borrow", "mint"]);
+
+function formatAmount(float: number): string {
+  if (float >= 1) return float.toFixed(2);
+  if (float >= 0.0001) return float.toFixed(6);
+  return float.toPrecision(4);
+}
+
+interface RawTransfer {
+  direction?: string;
+  fungible_info?: {
+    symbol?: string;
+    icon?: { url?: string };
+    implementations?: { address?: string }[];
+  };
+  quantity?: { float?: number };
+  value?: number;
+  sender?: string;
+  recipient?: string;
+}
+
+function isSystemAddress(addr?: string): boolean {
+  const a = (addr ?? "").toLowerCase();
+  return a === PAYMASTER || a === ENTRY_POINT;
+}
+
+function pickTransfer(transfers: RawTransfer[], direction: "in" | "out"): RawTransfer | undefined {
+  return transfers.find(
+    (t) => t.direction === direction && t.fungible_info != null && !isSystemAddress(t.recipient)
+  );
+}
+
+export async function fetchTransfers(
+  address: string,
+  pageSize = 100,
+  maxRetries = 2
+): Promise<ZerionHistoryItem[]> {
+  if (!ZERION_API_KEY) return [];
+
+  const params = new URLSearchParams({
+    currency: "usd",
+    "page[size]": pageSize.toString(),
+    "filter[trash]": "only_non_trash",
+  });
+  const url = `${BASE_URL}/wallets/${address}/transactions/?${params}`;
+  const options: RequestInit = {
+    headers: { accept: "application/json", authorization: `Basic ${ZERION_API_KEY}` },
+  };
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const data: unknown[] = json?.data ?? [];
+
+      const items: ZerionHistoryItem[] = [];
+
+      for (const entry of data) {
+        const tx = entry as {
+          attributes: Record<string, unknown>;
+          relationships?: { chain?: { data?: { id?: string } } };
+        };
+        const attrs = tx.attributes;
+        const zerionChainId = (tx.relationships?.chain?.data?.id ?? "") as string;
+
+        // BSC only
+        if (getChainId(zerionChainId) !== BNB_CHAIN_ID) continue;
+
+        const operation = (attrs.operation_type as string) ?? "execute";
+        const hash = attrs.hash as string;
+        const timestamp = attrs.mined_at as string;
+        if (!hash || !timestamp) continue;
+
+        const rawTransfers = ((attrs.transfers as RawTransfer[]) ?? []).filter(
+          (t) => t.fungible_info != null
+        );
+
+        const direction: "send" | "receive" = RECEIVE_LIKE_OPS.has(operation) ? "receive" : "send";
+
+        // --- trade: pick "out" as primary, "in" as received ---
+        if (operation === "trade") {
+          const outTx = pickTransfer(rawTransfers, "out");
+          const inTx  = pickTransfer(rawTransfers, "in");
+          if (!outTx) continue;
+
+          const outQty = outTx.quantity?.float ?? 0;
+          if (outQty === 0) continue;
+
+          const inQty = inTx?.quantity?.float ?? 0;
+          items.push({
+            hash, timestamp, operation,
+            direction: "send",
+            tokenSymbol: outTx.fungible_info?.symbol ?? "?",
+            tokenAddress: outTx.fungible_info?.implementations?.[0]?.address ?? "",
+            tokenIconUrl: outTx.fungible_info?.icon?.url ?? "",
+            amount: formatAmount(outQty),
+            valueUSD: outTx.value ?? 0,
+            sender: outTx.sender ?? "",
+            recipient: outTx.recipient ?? "",
+            tradeReceived: inTx?.fungible_info
+              ? {
+                  symbol: inTx.fungible_info.symbol ?? "?",
+                  amount: formatAmount(inQty),
+                  iconUrl: inTx.fungible_info.icon?.url ?? "",
+                }
+              : undefined,
+          });
+          continue;
+        }
+
+        // --- receive-like: pick "in" transfer ---
+        // --- send-like & everything else: pick "out" transfer, fallback to "in" ---
+        const primaryDir = RECEIVE_LIKE_OPS.has(operation) ? "in" : "out";
+        const primary =
+          pickTransfer(rawTransfers, primaryDir) ??
+          pickTransfer(rawTransfers, primaryDir === "in" ? "out" : "in");
+
+        // For approve/execute-like ops with no transfers, still create an entry without token details
+        if (!primary) {
+          if (operation === "approve" || operation === "execute") {
+            items.push({
+              hash, timestamp, operation, direction,
+              tokenSymbol: "", tokenAddress: "", tokenIconUrl: "",
+              amount: "", valueUSD: 0, sender: "", recipient: "",
+            });
+          }
+          continue;
+        }
+
+        const qty = primary.quantity?.float ?? 0;
+
+        items.push({
+          hash, timestamp, operation, direction,
+          tokenSymbol: primary.fungible_info?.symbol ?? "?",
+          tokenAddress: primary.fungible_info?.implementations?.[0]?.address ?? "",
+          tokenIconUrl: primary.fungible_info?.icon?.url ?? "",
+          amount: qty > 0 ? formatAmount(qty) : "",
+          valueUSD: primary.value ?? 0,
+          sender: primary.sender ?? "",
+          recipient: primary.recipient ?? "",
+        });
+      }
+
+      return items;
+    } catch (err) {
+      if (attempt === maxRetries - 1) {
+        console.error("fetchTransfers failed:", err);
+        return [];
+      }
+      await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
+  return [];
+}
+
 export async function getPortfolioForAddress(address: string): Promise<PortfolioResponse> {
   const [positionsResult, percentChange24h] = await Promise.all([
     fetchTokenPositions(address, 100),
