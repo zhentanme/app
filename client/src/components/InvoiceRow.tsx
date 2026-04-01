@@ -80,7 +80,7 @@ export function InvoiceRow({ invoice, index = 0, onClick }: InvoiceRowProps) {
         bounce: 0.15,
       }}
     >
-      <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center shrink-0 text-gold">
+      <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center shrink-0 text-gold">
         <FileText className="h-5 w-5" />
       </div>
 

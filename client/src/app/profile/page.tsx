@@ -261,7 +261,7 @@ function ProfilePageContent() {
                 <div className="flex items-center gap-0.5 ml-auto shrink-0">
                   <button
                     onClick={copyAddress}
-                    className="p-1.5 rounded-lg hover:bg-white/[0.08] text-slate-500 hover:text-white transition-all"
+                    className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all"
                     aria-label="Copy safe address"
                   >
                     {copied ? (
@@ -274,7 +274,7 @@ function ProfilePageContent() {
                     href={`https://app.safe.global/home?safe=bnb:${safeAddress}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-white/[0.08] text-slate-500 hover:text-white transition-all"
+                    className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all"
                     aria-label="Open in Safe"
                   >
                     <ExternalLink className="h-3.5 w-3.5" />

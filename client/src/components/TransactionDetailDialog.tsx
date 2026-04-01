@@ -220,7 +220,7 @@ export function TransactionDetailDialog({ tx, open, onClose }: TransactionDetail
 
         {/* Amount row */}
         <div className="flex items-center gap-3 rounded-2xl bg-white/6 p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+          <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
             <DirectionIcon className="h-5 w-5" />
           </div>
           {tx.tokenIconUrl ? (

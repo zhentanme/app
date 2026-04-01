@@ -245,7 +245,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <p className="text-xs text-slate-500 uppercase tracking-widest">Awaiting your signature</p>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/6 p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+          <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
@@ -289,7 +289,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <span className="text-sm font-semibold text-amber-400">{statusLabel(tx.status)}</span>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/6 p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+          <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={tx.token} iconUrl={tx.tokenIconUrl} />
@@ -341,7 +341,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <p className="text-xs text-slate-500 uppercase tracking-widest">Sending on chain</p>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/6 p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+          <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={selectedToken?.symbol ?? "USDC"} iconUrl={selectedToken?.iconUrl} />
@@ -383,7 +383,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           <span className="text-sm font-semibold text-gold">Executed</span>
         </div>
         <div className="flex items-center gap-3 rounded-2xl bg-white/6 p-4">
-          <div className="w-10 h-10 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+          <div className="w-10 h-10 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
             <ArrowUpRight className="h-5 w-5" />
           </div>
           <TokenIcon token={token} iconUrl={executedResult.tokenIconUrl} />
@@ -509,7 +509,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         <button
           type="button"
           onClick={() => setTokenSelectorOpen(true)}
-          className="w-full flex items-center gap-3 rounded-2xl bg-white/6 p-4 text-left hover:bg-white/[0.08] transition-colors min-h-[2.75rem] touch-manipulation"
+          className="w-full flex items-center gap-3 rounded-2xl bg-white/6 p-4 text-left hover:bg-white/8 transition-colors min-h-[2.75rem] touch-manipulation"
         >
           {selectedToken ? (
             <>
@@ -644,7 +644,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
             placeholder="Address, .eth, .bnb or Zhentan username"
             value={recipient}
             onChange={(e) => setRecipient(e.target.value)}
-            className="w-full rounded-2xl bg-white/6 px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/[0.08] transition-all min-h-[2.75rem] touch-manipulation"
+            className="w-full rounded-2xl bg-white/6 px-4 py-3.5 text-base sm:text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-claw/40 focus:bg-white/8 transition-all min-h-[2.75rem] touch-manipulation"
           />
         )}
         {resolving && (

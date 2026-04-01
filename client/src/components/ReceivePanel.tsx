@@ -21,7 +21,7 @@ export function ReceivePanel({ safeAddress }: ReceivePanelProps) {
 
   return (
     <div className="flex flex-col items-center text-center gap-5 pb-1">
-      <div className="w-12 h-12 rounded-2xl bg-white/[0.08] flex items-center justify-center text-gold">
+      <div className="w-12 h-12 rounded-2xl bg-white/8 flex items-center justify-center text-gold">
         <ArrowDownLeft className="h-5 w-5" />
       </div>
       <div className="space-y-1">
