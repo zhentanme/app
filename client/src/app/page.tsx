@@ -114,6 +114,10 @@ function Dashboard() {
           telegramUserId={telegramUserId}
           username={username}
           hideWhenClaimed
+          onClaimed={() => {
+            fetchPortfolio();
+            fetchTransactions();
+          }}
         />
 
         {/* Hero balance section */}

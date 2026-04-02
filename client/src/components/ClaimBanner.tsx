@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Dialog } from "@/components/ui/Dialog";
 import { useApiClient } from "@/lib/api/client";
 import type { CampaignStatus } from "@/lib/api/campaigns";
+import { ClaimAnimation, type ClaimAnimationPhase } from "@/components/ClaimAnimation";
 
 const CAMPAIGN_ID = "onboarding-genesis";
 
@@ -21,6 +22,8 @@ interface ClaimBannerProps {
   username: string | null | undefined;
   /** If true, the banner animates out and disappears once claimed */
   hideWhenClaimed?: boolean;
+  /** Called after the claim animation fully completes */
+  onClaimed?: () => void;
 }
 
 export function ClaimBanner({
@@ -28,6 +31,7 @@ export function ClaimBanner({
   telegramUserId,
   username,
   hideWhenClaimed = false,
+  onClaimed,
 }: ClaimBannerProps) {
   const api = useApiClient();
   const router = useRouter();
@@ -38,6 +42,8 @@ export function ClaimBanner({
   const [claiming, setClaiming] = useState(false);
   const [claimError, setClaimError] = useState<string | null>(null);
   const [dismissed, setDismissed] = useState(false);
+  const [animPhase, setAnimPhase] = useState<ClaimAnimationPhase>("idle");
+  const [animTokenAmount, setAnimTokenAmount] = useState(0);
 
   const taskMet: Record<string, boolean> = {
     tg_connected:     !!telegramUserId,
@@ -58,6 +64,15 @@ export function ClaimBanner({
     }
   }, [safeAddress, api]);
 
+  const handleAnimPhaseChange = useCallback((phase: ClaimAnimationPhase) => {
+    setAnimPhase(phase);
+    if (phase === "idle") {
+      fetchStatus();
+      onClaimed?.();
+      if (hideWhenClaimed) setTimeout(() => setDismissed(true), 400);
+    }
+  }, [fetchStatus, hideWhenClaimed, onClaimed]);
+
   // Fetch on mount (for hideWhenClaimed mode) or lazily on dialog open
   useEffect(() => {
     if (safeAddress) {
@@ -73,11 +88,10 @@ export function ClaimBanner({
     setClaiming(true);
     setClaimError(null);
     try {
-      await api.campaigns.claim(CAMPAIGN_ID, safeAddress);
-      await fetchStatus();
-      if (hideWhenClaimed) {
-        setTimeout(() => setDismissed(true), 1200);
-      }
+      const claim = await api.campaigns.claim(CAMPAIGN_ID, safeAddress);
+      setOpen(false);
+      setAnimTokenAmount(Math.floor(Number(claim.token_amount)));
+      setAnimPhase("counting");
     } catch (err) {
       setClaimError(err instanceof Error ? err.message : "Claim failed");
     } finally {
@@ -162,7 +176,7 @@ export function ClaimBanner({
                 </div>
                 <p className="text-xs text-claw/60 mt-0.5">
                   {alreadyClaimed
-                    ? "Claimed — pending payout"
+                    ? "Claimed"
                     : status
                     ? `${status.claimsRemaining} of ${status.campaign.max_claims} spots remaining`
                     : "Complete tasks · Limited spots"}
@@ -183,6 +197,13 @@ export function ClaimBanner({
         )}
        </div>
       </AnimatePresence>
+
+      <ClaimAnimation
+        phase={animPhase}
+        tokenAmount={animTokenAmount}
+        tokenSymbol="Tokens"
+        onPhaseChange={handleAnimPhaseChange}
+      />
 
       <Dialog open={open} onClose={() => setOpen(false)} title="Claim Free Tokens">
         {loading ? (
@@ -247,11 +268,11 @@ export function ClaimBanner({
               <div className="p-3 rounded-xl bg-claw/5 shadow-[0_0_0_1px_rgba(240,185,11,0.1)] text-center">
                 <p className="text-sm font-medium text-claw">
                   {status!.userClaim!.token_amount
-                    ? `${status!.userClaim!.token_amount} tokens claimed`
+                    ? `${status!.userClaim!.token_amount} $ZHENTAN tokens claimed`
                     : "Tokens claimed"}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5">
-                  {status!.userClaim!.status === "paid" ? "Paid out" : "Payout pending"}
+                  {status!.userClaim!.status === "paid" ? "" : "Payout pending"}
                 </p>
               </div>
             )}
