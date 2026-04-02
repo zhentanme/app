@@ -17,6 +17,7 @@ import { ThemeLoader } from "@/components/ThemeLoader";
 import { ClaimBanner } from "@/components/ClaimBanner";
 import { useAuth } from "@/app/context/AuthContext";
 import { useApiClient } from "@/lib/api/client";
+import { padTokensWithFallbacks } from "@/lib/tokenFallbacks";
 import type { TransactionWithStatus, StatusResponse, TokenPosition, PortfolioResponse } from "@/types";
 
 function Dashboard() {
@@ -42,7 +43,7 @@ function Dashboard() {
       const data: PortfolioResponse = await api.portfolio.get(safeAddress);
       setPortfolioTotalUsd(data.totalUsd);
       setPortfolioPercentChange24h(data.percentChange24h ?? null);
-      setTokens(data.tokens ?? []);
+      setTokens(padTokensWithFallbacks(data.tokens ?? []));
     } catch {
       // silent
     } finally {
