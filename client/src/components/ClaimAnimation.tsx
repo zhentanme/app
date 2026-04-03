@@ -179,7 +179,7 @@ function CompleteScreen({ tokenAmount, tokenSymbol }: { tokenAmount: number; tok
         </motion.div>
         <div className="text-2xl font-semibold text-white mb-2">{tokenSymbol}</div>
         <div className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-          Claimed — payout processing
+          Claimed
         </div>
       </motion.div>
     </motion.div>
