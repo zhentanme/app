@@ -219,6 +219,16 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   const canSubmit = resolvedAddress || (recipient.startsWith("0x") && recipient.length === 42);
   const recipientAddressLabel = (address: string) =>
     address.length > 20 ? `${address.slice(0, 10)}...${address.slice(-6)}` : address;
+  const applyMaxAmount = () => {
+    if (!selectedToken) return;
+    const raw = selectedToken.balance ?? "0";
+    // Use the balance string directly to preserve full precision for 18-decimal tokens.
+    // Strip trailing zeros after the decimal point.
+    const trimmed = raw.includes(".")
+      ? raw.replace(/\.?0+$/, "")
+      : raw;
+    setAmount(trimmed || "0");
+  };
   const submitLabel = canSubmit
     ? screeningMode
       ? "Propose Transaction"
@@ -496,6 +506,19 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
           onChange={(e) => setAmount(e.target.value)}
           className="w-full bg-transparent border-0 rounded-2xl py-2 text-3xl sm:text-4xl md:text-5xl font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-0 touch-manipulation"
         />
+        <div className="mt-2 flex items-center justify-between">
+          <p className="text-xs text-slate-500">
+            Balance: {selectedToken ? `${formatTokenAmount(selectedToken.balance)} ${selectedToken.symbol}` : "--"}
+          </p>
+          <button
+            type="button"
+            onClick={applyMaxAmount}
+            disabled={!selectedToken || balanceNum <= 0}
+            className="px-2.5 py-1 rounded-md bg-gold/15 border border-gold/35 text-xs font-semibold text-gold hover:bg-gold/20 hover:border-gold/50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+          >
+            MAX
+          </button>
+        </div>
         {insufficientFunds && (
           <p className="text-sm text-red-400 mt-1">Insufficient funds</p>
         )}

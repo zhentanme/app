@@ -9,6 +9,8 @@ const BNB_CHAIN: TokenPosition["chain"] = {
   name: "BNB Chain",
 };
 
+
+
 /** Ordered list of fallback tokens shown as placeholders when the portfolio is sparse. */
 const FALLBACKS: Omit<TokenPosition, "usdValue" | "balance" | "price">[] = [
   {
@@ -19,6 +21,17 @@ const FALLBACKS: Omit<TokenPosition, "usdValue" | "balance" | "price">[] = [
     decimals: 18,
     address: "0x0000000000000000000000000000000000000000",
     iconUrl: "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/binance/info/logo.png",
+    chain: BNB_CHAIN,
+    verified: true,
+  },
+  {
+    id: "fallback-zhentan",
+    tokenId: "0x71da0ba87ffbfc41aab54e3dddb980293c8a7777",
+    name: "Zhentan",
+    symbol: "ZHENTAN",
+    decimals: 18,
+    address: "0x71da0ba87ffbfc41aab54e3dddb980293c8a7777",
+    iconUrl: "https://cdn.dexscreener.com/cms/images/rOBh0EA3qVRGOAxu?width=64&height=64&fit=crop&quality=95&format=auto",
     chain: BNB_CHAIN,
     verified: true,
   },

@@ -498,6 +498,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
                   key={t.id}
                   token={t}
                   index={i}
+                  hideZeroBalance
                   selected={toToken?.address?.toLowerCase() === t.address?.toLowerCase()}
                   onClick={() => {
                     setToToken(t);
@@ -522,6 +523,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
                   key={t.id}
                   token={t}
                   index={i}
+                  hideZeroBalance
                   selected={toToken?.address?.toLowerCase() === t.address?.toLowerCase()}
                   onClick={() => {
                     setToToken(t);
@@ -573,7 +575,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
                     type="button"
                     onClick={() => {
                       const val = (parseFloat(fromToken.balance) * pct).toFixed(6).replace(/\.?0+$/, "");
-                      setSellAmount(val);
+                      setSellAmount(val || "0");
                     }}
                     className="px-1.5 py-0.5 rounded text-xs font-semibold text-gold hover:text-gold-light transition-colors cursor-pointer"
                   >
