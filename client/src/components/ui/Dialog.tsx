@@ -100,7 +100,7 @@ export function Dialog({
                 <div className="w-10 h-1 rounded-full bg-white/20" aria-hidden />
               </div>
             )}
-            <div className={clsx("relative flex items-center", title ? "mb-5" : "mb-2")}>
+            <div className={clsx("relative flex items-center", title ? "mb-5" : "mb-0")}>
               {title && (
                 <h2
                   id="dialog-title"
