@@ -3,6 +3,18 @@
 import { useState, useEffect } from "react";
 import { useApiClient } from "@/lib/api/client";
 
+// ── Cookie helpers (read by Next.js middleware for server-side routing) ───────
+
+function setOnboardingCompleteCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = "onboarding_complete=1; path=/; max-age=31536000; samesite=lax";
+}
+
+export function clearOnboardingCompleteCookie() {
+  if (typeof document === "undefined") return;
+  document.cookie = "onboarding_complete=; path=/; max-age=0; samesite=lax";
+}
+
 // ── Storage schema ────────────────────────────────────────────────────────────
 // Minimal — localStorage is only a fast-path cache. Source of truth is the backend.
 
@@ -53,11 +65,13 @@ export function markOnboardingUsernameSet(safeAddress: string) {
 /** Telegram done or skipped → Done step reached, cache completed locally */
 export function markOnboardingTelegramDone(safeAddress: string) {
   patchStored(safeAddress, { step: 2, completed: true });
+  setOnboardingCompleteCookie();
 }
 
 /** Skip setup → Done step, cache completed locally */
 export function markAllOnboardingSkipped(safeAddress: string) {
   patchStored(safeAddress, { step: 2, completed: true });
+  setOnboardingCompleteCookie();
 }
 
 // ── Hook (used by OnboardingGuard) ────────────────────────────────────────────
@@ -98,6 +112,7 @@ export function useOnboarding(
 
         if (backendCompleted || naturallyComplete) {
           patchStored(safeAddress, { completed: true });
+          setOnboardingCompleteCookie();
           setComplete(true);
         }
       })

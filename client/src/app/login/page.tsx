@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ThemeLoader } from "@/components/ThemeLoader";
 import { useAuth } from "@/app/context/AuthContext";
+import { useOnboarding } from "@/lib/useOnboarding";
 import { useLoginWithOAuth } from "@privy-io/react-auth";
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */
@@ -553,19 +554,23 @@ const techStack = [
 /* ─── Page ────────────────────────────────────────────────────────── */
 
 export default function LandingPage() {
-  const { user, wallet, loading } = useAuth();
+  const { user, wallet, loading, safeAddress, safeLoading, telegramUserId } = useAuth();
   const { initOAuth, loading: oauthLoading } = useLoginWithOAuth();
   const [signingInGoogle, setSigningInGoogle] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
 
+  const { loading: onboardingLoading, complete: onboardingComplete } = useOnboarding(
+    !loading && user && wallet && !safeLoading ? safeAddress : null,
+    telegramUserId
+  );
+
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (!loading && user && wallet) {
-      router.replace("/home");
-    }
-  }, [loading, user, wallet, router]);
+    if (loading || !user || !wallet || safeLoading || onboardingLoading) return;
+    router.replace(onboardingComplete ? "/home" : "/onboarding");
+  }, [loading, user, wallet, safeLoading, onboardingLoading, onboardingComplete, router]);
 
   const handleGoogleLogin = async () => {
     try {
@@ -577,11 +582,13 @@ export default function LandingPage() {
     }
   };
 
-  if (!mounted || loading || (user && wallet)) {
+  const redirecting = !loading && user && wallet && !safeLoading && !onboardingLoading;
+
+  if (!mounted || loading || redirecting) {
     return (
       <ThemeLoader
         variant="auth"
-        message={user && wallet ? "Taking you home..." : "Loading Zhentan"}
+        message={redirecting ? "Taking you home..." : "Loading Zhentan"}
         subtext="Securing your session"
       />
     );

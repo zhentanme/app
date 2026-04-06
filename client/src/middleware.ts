@@ -9,16 +9,16 @@ const PUBLIC_ROUTES = ["/login", "/deck"];
 /**
  * Next.js middleware — runs on the edge before every matched request.
  *
- * Privy sets `privy-token` (access JWT) and `privy-id-token` cookies when
- * a user is authenticated. We check for their presence to gate access:
+ * Privy sets `privy-token` / `privy-id-token` cookies when authenticated.
+ * We also set `onboarding_complete=1` client-side once the user finishes
+ * onboarding, so the middleware can route without a client-side round-trip.
  *
- *   • No token + protected route  → redirect to /login
- *   • Has token + /login          → redirect to /home
- *   • Otherwise                   → pass through
+ *   • No token + protected route          → /login
+ *   • Has token + /login or /             → /onboarding (if incomplete) or /home
+ *   • Otherwise                           → pass through
  *
- * This eliminates the flash of protected UI for unauthenticated users.
- * Full JWT verification and onboarding checks still happen client-side
- * via AuthGuard / useAuth.
+ * AuthGuard / useAuth still handle full JWT verification and act as a
+ * safety net for cases where the cookie is absent (e.g. new device).
  */
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -31,9 +31,13 @@ export function middleware(request: NextRequest) {
     request.cookies.get("privy-token")?.value ||
     request.cookies.get("privy-id-token")?.value;
 
-  // Authenticated user hitting /login → send them to /home
-  if (token && pathname === "/login") {
-    return NextResponse.redirect(new URL("/home", request.url));
+  const onboardingComplete =
+    request.cookies.get("onboarding_complete")?.value === "1";
+
+  // Authenticated user hitting /login or / → route based on onboarding status
+  if (token && (pathname === "/login" || pathname === "/")) {
+    const dest = onboardingComplete ? "/home" : "/onboarding";
+    return NextResponse.redirect(new URL(dest, request.url));
   }
 
   // Unauthenticated user hitting a protected route → send to /login

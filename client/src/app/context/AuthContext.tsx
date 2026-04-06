@@ -15,6 +15,7 @@ import { bsc } from "viem/chains";
 import type { Address, LocalAccount } from "viem";
 import { useSafeAddress } from "@/lib/useSafeAddress";
 import { apiFetch } from "@/lib/api/client";
+import { clearOnboardingCompleteCookie } from "@/lib/useOnboarding";
 
 export interface AuthUser {
   email?: string;
@@ -111,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [privyLogin]);
 
   const logout = useCallback(async () => {
+    clearOnboardingCompleteCookie();
     await privyLogout();
   }, [privyLogout]);
 

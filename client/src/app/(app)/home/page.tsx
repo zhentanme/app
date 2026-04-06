@@ -110,16 +110,19 @@ function Dashboard() {
 
       <main className="flex-1 flex flex-col min-h-0 w-full max-w-lg mx-auto overflow-y-auto pb-24 sm:pb-8">
         {/* Claim banner */}
+        <div className="px-4 sm:px-0">
         <ClaimBanner
           safeAddress={safeAddress}
           telegramUserId={telegramUserId}
           username={username}
           hideWhenClaimed
+          className="mx-0"
           onClaimed={() => {
             fetchPortfolio();
             fetchTransactions();
           }}
         />
+        </div>
 
         {/* Hero balance section */}
         <div className="shrink-0 hero-gradient-subtle">

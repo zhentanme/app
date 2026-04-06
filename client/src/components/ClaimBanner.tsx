@@ -37,6 +37,8 @@ interface ClaimBannerProps {
   hideWhenClaimed?: boolean;
   /** Called after the claim animation fully completes */
   onClaimed?: () => void;
+  /** Extra classes applied to the banner button (e.g. to override margin) */
+  className?: string;
 }
 
 export function ClaimBanner({
@@ -45,6 +47,7 @@ export function ClaimBanner({
   username,
   hideWhenClaimed = false,
   onClaimed,
+  className,
 }: ClaimBannerProps) {
   const api = useApiClient();
   const router = useRouter();
@@ -140,7 +143,7 @@ export function ClaimBanner({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, height: 0, marginBottom: 0 }}
             transition={{ duration: 0.3, type: "spring", bounce: 0.15 }}
-            className={`w-full relative overflow-hidden rounded-2xl text-left focus:outline-none group cursor-pointer mx-4 lg:mx-0${hideWhenClaimed ? " mb-4" : ""}`}
+            className={`w-full relative overflow-hidden rounded-2xl text-left focus:outline-none group cursor-pointer ${className ?? "mx-4 lg:mx-0"}${hideWhenClaimed ? " mb-4" : ""}`}
             style={{
               background:
                 "linear-gradient(135deg, rgba(240,185,11,0.12) 0%, rgba(240,185,11,0.05) 50%, rgba(240,185,11,0.10) 100%)",

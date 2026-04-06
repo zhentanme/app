@@ -158,6 +158,7 @@ function ProfilePageContent() {
               telegramUserId={telegramUserId}
               username={username}
               hideWhenClaimed
+              className="mx-0"
             />
           </motion.div>
 
