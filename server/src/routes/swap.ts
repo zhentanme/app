@@ -167,6 +167,7 @@ async function fetchDirectQuote(
     order: "CHEAPEST",
     slippage: "0.05",
     integrator: "zhentan",
+    preferExchanges: "sushiswap",
   });
 
   const res = await fetch(`https://li.quest/v1/quote?${params.toString()}`, {
@@ -216,6 +217,7 @@ async function fetchBestRoute(
       order: "CHEAPEST",
       slippage: 0.05,
       integrator: "zhentan",
+      options: { exchanges: { allow: ["sushiswap"] } },
     }),
   });
 

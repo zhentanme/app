@@ -15,6 +15,7 @@ import { bsc } from "viem/chains";
 import type { Address, LocalAccount } from "viem";
 import { useSafeAddress } from "@/lib/useSafeAddress";
 import { apiFetch } from "@/lib/api/client";
+import { clearOnboardingCompleteCookie } from "@/lib/useOnboarding";
 
 export interface AuthUser {
   email?: string;
@@ -32,7 +33,7 @@ export interface AuthContextType {
   wallet: AuthWallet | null;
   loading: boolean;
   login: () => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   /** Returns a signer (wallet client + account) for the embedded wallet (for Safe signing). */
   getOwnerAccount: () => Promise<LocalAccount | null>;
   /** Deterministic Safe multisig address for this user + agent */
@@ -54,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { wallets } = useWallets();
   const { createWallet } = useCreateWallet();
   const { identityToken } = useIdentityToken();
-  console.log(identityToken)
+
   const hasAttemptedCreate = useRef(false);
   const hasSyncedUser = useRef(false);
 
@@ -110,8 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     privyLogin();
   }, [privyLogin]);
 
-  const logout = useCallback(() => {
-    privyLogout();
+  const logout = useCallback(async () => {
+    clearOnboardingCompleteCookie();
+    await privyLogout();
   }, [privyLogout]);
 
   const { safeAddress, loading: safeLoading } = useSafeAddress(wallet?.address ?? undefined);

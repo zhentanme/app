@@ -16,6 +16,7 @@ import { useApiClient } from "@/lib/api/client";
 import { Dialog } from "./ui/Dialog";
 import { TokenRow } from "./TokenRow";
 import type { TransactionWithStatus, TokenPosition } from "@/types";
+import { useTokenAmountInput } from "@/lib/useTokenAmountInput";
 
 interface SendPanelProps {
   onSuccess: () => void;
@@ -38,7 +39,6 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   const [resolvedAvatar, setResolvedAvatar] = useState<string | null>(null);
   const [resolving, setResolving] = useState(false);
   const [resolveError, setResolveError] = useState<string | null>(null);
-  const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sendPhase, setSendPhase] = useState<"form" | "proposing" | "proposed" | "sending" | "success">("form");
@@ -55,6 +55,20 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   // Include ERC20 and native token (BNB); native has zero address in portfolio
   const sendableTokens = tokens.filter((t) => t.address != null);
   const [selectedToken, setSelectedToken] = useState<TokenPosition | null>(() => sendableTokens[0] ?? null);
+  const {
+    mode: amountMode,
+    inputValue: amountInputValue,
+    tokenAmount: amount,
+    secondaryDisplay: amountSecondary,
+    setInputValue: setAmountInput,
+    toggleMode: toggleAmountMode,
+    setTokenAmountDirect: setAmountDirect,
+    reset: resetAmount,
+  } = useTokenAmountInput(
+    selectedToken?.price ?? 0,
+    selectedToken?.symbol ?? "",
+    selectedToken?.decimals ?? 18,
+  );
 
   useEffect(() => {
     if (sendableTokens.length > 0 && !selectedToken) setSelectedToken(sendableTokens[0]);
@@ -65,6 +79,8 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   const balanceNum = parseFloat(balanceRaw) || 0;
   const amountNum = parseFloat(amount) || 0;
   const insufficientFunds = amountNum > 0 && amountNum > balanceNum;
+
+  useEffect(() => { resetAmount(); }, [selectedToken?.id]);
 
   const resolveRecipient = useCallback(async (value: string) => {
     const trimmed = value.trim();
@@ -222,12 +238,8 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
   const applyMaxAmount = () => {
     if (!selectedToken) return;
     const raw = selectedToken.balance ?? "0";
-    // Use the balance string directly to preserve full precision for 18-decimal tokens.
-    // Strip trailing zeros after the decimal point.
-    const trimmed = raw.includes(".")
-      ? raw.replace(/\.?0+$/, "")
-      : raw;
-    setAmount(trimmed || "0");
+    const trimmed = raw.includes(".") ? raw.replace(/\.?0+$/, "") : raw;
+    setAmountDirect(trimmed || "0");
   };
   const submitLabel = canSubmit
     ? screeningMode
@@ -329,7 +341,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
             setSendPhase("form");
             setProposedTx(null);
             clearRecipient();
-            setAmount("");
+            resetAmount();
             onSuccess();
           }}
           className="w-full py-3.5"
@@ -431,7 +443,7 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
             setSendPhase("form");
             setExecutedResult(null);
             clearRecipient();
-            setAmount("");
+            resetAmount();
             onSuccess();
           }}
           className="w-full py-3.5"
@@ -496,16 +508,38 @@ export function SendPanel({ onSuccess, onClose, onRefreshActivities, tokens, scr
         <label className="block text-sm font-medium text-slate-400 mb-2">
           You&apos;re sending
         </label>
-        <input
-          type="number"
-          inputMode="decimal"
-          step="any"
-          min="0"
-          placeholder="0.00"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-transparent border-0 rounded-2xl py-2 text-3xl sm:text-4xl md:text-5xl font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-0 touch-manipulation"
-        />
+        <div className="flex items-center gap-1">
+          {amountMode === "usd" && (
+            <span className="text-3xl sm:text-4xl md:text-5xl font-semibold text-white">$</span>
+          )}
+          <input
+            type="number"
+            inputMode="decimal"
+            step="any"
+            min="0"
+            placeholder="0.00"
+            value={amountInputValue}
+            onChange={(e) => setAmountInput(e.target.value)}
+            className="w-full bg-transparent border-0 rounded-2xl py-2 text-3xl sm:text-4xl md:text-5xl font-semibold text-white placeholder-slate-500 focus:outline-none focus:ring-0 touch-manipulation"
+          />
+        </div>
+        {amountSecondary ? (
+          <button
+            type="button"
+            onClick={toggleAmountMode}
+            className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer mt-1 text-left"
+          >
+            {amountSecondary}
+          </button>
+        ) : selectedToken?.price ? (
+          <button
+            type="button"
+            onClick={toggleAmountMode}
+            className="text-xs text-slate-600 hover:text-slate-400 transition-colors cursor-pointer mt-1 text-left"
+          >
+            {amountMode === "token" ? "Switch to $" : `Switch to ${selectedToken.symbol}`}
+          </button>
+        ) : null}
         <div className="mt-2 flex items-center justify-between">
           <p className="text-xs text-slate-500">
             Balance: {selectedToken ? `${formatTokenAmount(selectedToken.balance)} ${selectedToken.symbol}` : "--"}
