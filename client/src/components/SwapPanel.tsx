@@ -24,6 +24,7 @@ import { useApiClient } from "@/lib/api/client";
 import type { SearchedToken } from "@/lib/api/tokens";
 import { parseUnits, formatUnits } from "viem";
 import type { TokenPosition } from "@/types";
+import { useTokenAmountInput } from "@/lib/useTokenAmountInput";
 
 // Popular BNB Chain tokens shown in the buy token selector even if not in portfolio
 const BNB_POPULAR_TOKENS: TokenPosition[] = [
@@ -121,7 +122,20 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
 
   const [fromToken, setFromToken] = useState<TokenPosition | null>(null);
   const [toToken, setToToken] = useState<TokenPosition | null>(null);
-  const [sellAmount, setSellAmount] = useState("");
+  const {
+    mode: amountMode,
+    inputValue: sellInputValue,
+    tokenAmount: sellAmount,
+    secondaryDisplay: sellSecondary,
+    setInputValue: setSellInput,
+    toggleMode: toggleAmountMode,
+    setTokenAmountDirect: setSellAmountDirect,
+    reset: resetSellAmount,
+  } = useTokenAmountInput(
+    fromToken?.price ?? 0,
+    fromToken?.symbol ?? "",
+    fromToken?.decimals ?? 18,
+  );
   const [quote, setQuote] = useState<SwapQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
@@ -166,6 +180,9 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
   const amountNum = parseFloat(sellAmount) || 0;
   const insufficientFunds = amountNum > 0 && amountNum > balanceNum;
 
+  // Reset amount when from-token changes
+  useEffect(() => { resetSellAmount(); }, [fromToken?.address]);
+
   // Debounced quote fetching
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -208,7 +225,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [fromToken, toToken, sellAmount, wallet]);
+  }, [fromToken, toToken, sellInputValue, amountMode, wallet]);
 
   const buyAmountFormatted =
     quote && toToken
@@ -259,7 +276,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
     const prev = fromToken;
     setFromToken(toToken && sellableTokens.find((t) => t.address?.toLowerCase() === toToken.address?.toLowerCase()) ? toToken : null);
     setToToken(prev);
-    setSellAmount("");
+    resetSellAmount();
     setQuote(null);
   };
 
@@ -294,7 +311,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
   };
 
   const reset = () => {
-    setSellAmount("");
+    resetSellAmount();
     setQuote(null);
     setQuoteError(null);
     setTxHash(null);
@@ -402,7 +419,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
             <ArrowDownUp className="h-10 w-10" />
           </div>
           <span className="text-sm font-semibold text-red-400">Swap Failed</span>
-          {error && <p className="text-xs text-slate-500 text-center">{error}</p>}
+          {error && <p className="text-xs text-slate-500 text-center">Swap Failed, Please try again</p>}
         </div>
         <Button type="button" variant="secondary" onClick={reset} className="w-full py-3.5">
           Try Again
@@ -444,7 +461,7 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
                 selected={fromToken?.id === t.id}
                 onClick={() => {
                   setFromToken(t);
-                  setSellAmount("");
+                  resetSellAmount();
                   setQuote(null);
                   setFromSelectorOpen(false);
                 }}
@@ -544,16 +561,40 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
             You&apos;re selling
           </label>
           <div className="flex items-center gap-3">
-            <input
-              type="number"
-              inputMode="decimal"
-              step="any"
-              min="0"
-              placeholder="0.00"
-              value={sellAmount}
-              onChange={(e) => setSellAmount(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent border-0 text-3xl font-semibold text-white placeholder-slate-600 focus:outline-none focus:ring-0 touch-manipulation"
-            />
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1">
+                {amountMode === "usd" && (
+                  <span className="text-3xl font-semibold text-white">$</span>
+                )}
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min="0"
+                  placeholder="0.00"
+                  value={sellInputValue}
+                  onChange={(e) => setSellInput(e.target.value)}
+                  className="min-w-0 w-full bg-transparent border-0 text-3xl font-semibold text-white placeholder-slate-600 focus:outline-none focus:ring-0 touch-manipulation"
+                />
+              </div>
+              {sellSecondary ? (
+                <button
+                  type="button"
+                  onClick={toggleAmountMode}
+                  className="text-xs text-slate-500 hover:text-slate-300 transition-colors cursor-pointer mt-0.5 text-left"
+                >
+                  {sellSecondary}
+                </button>
+              ) : fromToken?.price ? (
+                <button
+                  type="button"
+                  onClick={toggleAmountMode}
+                  className="text-xs text-slate-600 hover:text-slate-400 transition-colors cursor-pointer mt-0.5 text-left"
+                >
+                  {amountMode === "token" ? "Switch to $" : `Switch to ${fromToken.symbol}`}
+                </button>
+              ) : null}
+            </div>
             <button
               type="button"
               onClick={() => setFromSelectorOpen(true)}
@@ -580,16 +621,16 @@ export function SwapPanel({ onSuccess, onClose, tokens }: SwapPanelProps) {
                         const trimmed = raw.includes(".")
                           ? raw.replace(/\.?0+$/, "")
                           : raw;
-                        setSellAmount(trimmed || "0");
+                        setSellAmountDirect(trimmed || "0");
                       } else {
                         // Percentage — use bigint math to avoid float precision loss
                         try {
                           const wei = parseUnits(raw, fromToken.decimals);
                           const val = formatUnits((wei * num) / den, fromToken.decimals)
                             .replace(/\.?0+$/, "");
-                          setSellAmount(val || "0");
+                          setSellAmountDirect(val || "0");
                         } catch {
-                          setSellAmount("0");
+                          setSellAmountDirect("0");
                         }
                       }
                     }}
