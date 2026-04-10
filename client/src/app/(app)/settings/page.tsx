@@ -207,7 +207,7 @@ function SettingsPageContent() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="text-sm font-semibold text-white">
-                        Basic Plan
+                        Free Plan
                       </h3>
                       <span
                         className={`text-[10px] font-medium px-2 py-0.5 rounded-full transition-all duration-300 ${
@@ -220,26 +220,11 @@ function SettingsPageContent() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Public OpenClaw instance
+                      Public OpenClaw Instance
                     </p>
                   </div>
                 </div>
 
-                {/* Model chip */}
-                <div className="mb-5">
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-mono transition-all duration-300 ${
-                      screeningMode
-                        ? "bg-white/6 text-slate-300"
-                        : "bg-white/3 text-slate-500"
-                    }`}
-                  >
-                    <Cpu
-                      className={`h-3 w-3 ${screeningMode ? "text-gold/60" : "text-slate-600"}`}
-                    />
-                    Qwen3-235B-A22B
-                  </span>
-                </div>
 
                 {/* Telegram Notifications */}
                 <AnimatePresence>

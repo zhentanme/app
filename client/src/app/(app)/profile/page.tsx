@@ -165,12 +165,12 @@ function ProfilePageContent() {
           {/* User Info */}
           {user && (user.email || user.name || user.image) && (
             <motion.div variants={staggerItem}>
-              <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/2 border border-white/6">
+              <div className="flex flex-col items-center gap-4 p-5">
                 {user.image ? (
                   <img
                     src={user.image}
                     alt=""
-                    className="w-12 h-12 rounded-xl object-cover"
+                    className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-lg font-semibold text-gold">
@@ -179,7 +179,7 @@ function ProfilePageContent() {
                       .toUpperCase()}
                   </div>
                 )}
-                <div className="min-w-0 flex-1">
+                <div className="flex flex-col items-center gap-2">
                   <p className="text-sm font-semibold text-white truncate">
                     {!user.name || user.name === "" || user.name === "null"
                       ? "Signed in as"
