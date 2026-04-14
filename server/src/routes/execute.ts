@@ -64,6 +64,11 @@ export function createExecuteRouter(): IRouter {
         return;
       }
 
+      if(tx.rejected) {
+        res.json({ status: "already_rejected"});
+        return;
+      }
+
       if (tx.executedAt) {
         res.json({ status: "already_executed", txHash: tx.txHash });
         return;
