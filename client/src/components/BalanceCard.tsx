@@ -109,7 +109,7 @@ export function BalanceCard({
       </motion.p>
 
       {/* Balance */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 relative">
         {loading ? (
           <Skeleton className="h-12 w-44 rounded-2xl" />
         ) : (
@@ -122,7 +122,8 @@ export function BalanceCard({
             ${displayTotal ?? "0.00"}
           </motion.h1>
         )}
-        {onRefresh && (
+       <div className="absolute -right-10 top-1/2 -translate-y-1/2">
+       {onRefresh && (
           <button
             type="button"
             onClick={onRefresh}
@@ -133,6 +134,7 @@ export function BalanceCard({
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </button>
         )}
+       </div>
       </div>
 
       {/* 24h change */}
