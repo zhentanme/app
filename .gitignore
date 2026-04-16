@@ -18,3 +18,10 @@ server/dist/
 server/data/
 server/logs/
 server/.env
+
+# Serwist service worker (generated at build time)
+client/public/sw.js
+client/public/sw.js.map
+client/public/swe-worker-*.js
+client/public/workbox-*.js
+client/public/workbox-*.js.map
