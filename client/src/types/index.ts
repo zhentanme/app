@@ -115,6 +115,8 @@ export interface StatusResponse {
   screeningMode: boolean;
   lastCheck: string | null;
   totalDecisions: number;
+  telegramChatId?: string | null;
+  botConnected?: boolean;
   patterns: PatternsFile;
 }
 
