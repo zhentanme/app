@@ -339,7 +339,7 @@ function ProfilePageContent() {
                       Signer 1
                     </p>
                     <p className="text-[11px] text-slate-500 mb-0.5">
-                      Privy embedded wallet
+                      Embedded wallet
                     </p>
                     <p
                       className="font-mono text-[11px] text-slate-300 truncate"
@@ -384,7 +384,7 @@ function ProfilePageContent() {
                 await logout();
                 router.replace("/login");
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-medium text-slate-500 hover:text-red-400 bg-white/2 border border-white/6 hover:border-red-400/20 hover:bg-red-500/4 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-medium text-red-400 bg-white/2 border border-white/6 hover:border-red-400/20 hover:bg-red-500/4 transition-all"
             >
               <LogOut className="h-4 w-4" />
               Log out

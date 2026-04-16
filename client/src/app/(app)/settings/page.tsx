@@ -17,6 +17,7 @@ import {
   Settings,
   CheckCircle2,
   Circle,
+  XIcon,
 } from "lucide-react";
 import { useApiClient } from "@/lib/api/client";
 
@@ -283,7 +284,7 @@ function SettingsPageContent() {
                         {screeningMode ? "Active" : "Inactive"}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-0.5">Public OpenClaw Instance</p>
+                    <p className="text-xs text-slate-500 mt-0.5">OpenClaw Instance</p>
                   </div>
                 </div>
 
@@ -299,10 +300,7 @@ function SettingsPageContent() {
                     >
                       {/* Step 1 — Link Telegram */}
                       <div className="flex items-start gap-3 p-3.5 rounded-xl bg-white/4">
-                        <div className="w-8 h-8 rounded-xl bg-blue-400/8 flex items-center justify-center shrink-0 mt-0.5">
-                          <MessageCircle className="h-3.5 w-3.5 text-blue-400" />
-                        </div>
-
+                      
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5">
@@ -318,9 +316,10 @@ function SettingsPageContent() {
                             {telegramLinked ? (
                               <button
                                 onClick={handleUnlinkTelegram}
-                                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white/6 text-slate-400 hover:bg-white/10 hover:text-slate-300 transition-all cursor-pointer shrink-0"
+                                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-white/6 text-red-400 hover:bg-white/10 hover:text-slate-300 transition-all cursor-pointer shrink-0 flex items-center gap-1"
                               >
-                                Unlink
+                               {tgDisplayName}
+                               <XIcon className="h-3 w-3 text-red-400" />
                               </button>
                             ) : (
                               <button
@@ -339,32 +338,25 @@ function SettingsPageContent() {
                             )}
                           </div>
 
+                            {!telegramLinked && !tgDisplayName && (
                           <p className="text-[11px] text-slate-500 mt-1">
-                            {telegramLinked && tgDisplayName ? (
-                              <span className="text-emerald-400 font-medium">{tgDisplayName}</span>
-                            ) : telegramLinked ? (
-                              <span className="text-emerald-400 font-medium">Connected</span>
-                            ) : (
                               "Connect your Telegram account to receive notifications"
-                            )}
                           </p>
+                              )}
                         </div>
                       </div>
 
                       {/* Step 2 — Ping the bot */}
                       <div
                         className={`flex items-start gap-3 p-3.5 rounded-xl bg-white/4 transition-opacity duration-300 ${
-                          !telegramLinked ? "opacity-40 pointer-events-none" : ""
+                          !telegramLinked || !tgDisplayName ? "opacity-40 pointer-events-none" : ""
                         }`}
                       >
-                        <div className="w-8 h-8 rounded-xl bg-blue-400/8 flex items-center justify-center shrink-0 mt-0.5">
-                          <MessageCircle className="h-3.5 w-3.5 text-blue-400" />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
+                      
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-1.5">
-                              {botConnected ? (
+                              {botConnected && tgDisplayName ? (
                                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                               ) : (
                                 <Circle className="h-3.5 w-3.5 text-slate-600 shrink-0" />
@@ -373,36 +365,25 @@ function SettingsPageContent() {
                                 Step 2 — Start the Bot
                               </h4>
                             </div>
-                            {!botConnected && (
+                     
                               <button
+                  
                                 onClick={botStarted ? pollBotConnected : handleStart}
-                                disabled={checkingBot || !telegramLinked}
+                                disabled={checkingBot || !telegramLinked || botStarted}
                                 className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-blue-400/10 text-blue-400 hover:bg-blue-400/15 transition-all disabled:opacity-50 cursor-pointer disabled:cursor-default shrink-0"
                               >
-                                {checkingBot ? (
+                                {checkingBot && (
                                   <Loader2 className="h-3 w-3 animate-spin inline mr-1" />
-                                ) : null}
-                                {botStarted ? "Check" : "Start"}
+                                )}
+                                {botStarted ? "Started" : "Start"}
                               </button>
-                            )}
+                        
                           </div>
 
                           <p className="text-[11px] text-slate-500 mt-1">
-                            {botConnected ? (
-                              <span className="text-emerald-400 font-medium">Bot connected</span>
-                            ) : botStarted ? (
-                              <>Waiting for a message from you on{" "}
-                                <a
-                                  href="https://t.me/zhentanme_bot"
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-blue-400/80 hover:text-blue-400 transition-colors"
-                                >
-                                  @zhentanme_bot
-                                </a>
-                              </>
-                            ) : (
-                              <>Send any message to{" "}
+                            {!botConnected && (
+                              <>
+                              Send any message to{" "}
                                 <a
                                   href="https://t.me/zhentanme_bot"
                                   target="_blank"
@@ -412,7 +393,7 @@ function SettingsPageContent() {
                                   @zhentanme_bot
                                 </a>{" "}
                                 to activate notifications
-                              </>
+                                </>
                             )}
                           </p>
                         </div>
