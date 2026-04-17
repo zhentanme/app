@@ -65,7 +65,7 @@ function ProfilePageContent() {
     if (!safeAddress) return;
     api.status.get(safeAddress)
       .then((data) => setScreeningMode(data.screeningMode ?? true))
-      .catch(() => {});
+      .catch(() => { });
   }, [safeAddress, api]);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ function ProfilePageContent() {
         setUsername(u);
         setUsernameInput(u ?? "");
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [safeAddress, api]);
 
   const handleUsernameInputChange = (val: string) => {
@@ -149,10 +149,11 @@ function ProfilePageContent() {
           variants={staggerContainer}
           initial="hidden"
           animate="visible"
-          className="space-y-5"
+          className="space-y-5 h-full flex flex-col justify-between items-center"
         >
-          {/* Claim Banner — always first, most prominent */}
-          <motion.div variants={staggerItem}>
+         <div className="space-y-5 w-full">
+           {/* Claim Banner — always first, most prominent */}
+           {/* <motion.div variants={staggerItem}>
             <ClaimBanner
               safeAddress={safeAddress}
               telegramUserId={telegramUserId}
@@ -160,17 +161,17 @@ function ProfilePageContent() {
               hideWhenClaimed
               className="mx-0"
             />
-          </motion.div>
+          </motion.div> */}
 
           {/* User Info */}
           {user && (user.email || user.name || user.image) && (
             <motion.div variants={staggerItem}>
-              <div className="flex items-center gap-4 p-5 rounded-2xl bg-white/2 border border-white/6">
+              <div className="flex flex-col items-center gap-4 p-5">
                 {user.image ? (
                   <img
                     src={user.image}
                     alt=""
-                    className="w-12 h-12 rounded-xl object-cover"
+                    className="w-14 h-14 rounded-full object-cover"
                   />
                 ) : (
                   <div className="w-12 h-12 rounded-xl bg-gold/10 flex items-center justify-center text-lg font-semibold text-gold">
@@ -179,7 +180,7 @@ function ProfilePageContent() {
                       .toUpperCase()}
                   </div>
                 )}
-                <div className="min-w-0 flex-1">
+                <div className="flex flex-col items-center gap-2">
                   <p className="text-sm font-semibold text-white truncate">
                     {!user.name || user.name === "" || user.name === "null"
                       ? "Signed in as"
@@ -190,6 +191,36 @@ function ProfilePageContent() {
                       {user.email}
                     </p>
                   )}
+                  {/* Safe Address */}
+                  <div className="flex items-center gap-2">
+                    <Wallet className="h-3.5 w-3.5 text-slate-500 shrink-0 invisible" />
+                    <Wallet className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+                    <span className="font-mono text-xs text-slate-300 truncate min-w-0">
+                      {truncateAddress(safeAddress)}
+                    </span>
+                    <div className="flex items-center gap-0.5 ml-auto shrink-0">
+                      <button
+                        onClick={copyAddress}
+                        className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all cursor-pointer"
+                        aria-label="Copy safe address"
+                      >
+                        {copied ? (
+                          <Check className="h-3.5 w-3.5 text-gold" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                      <a
+                        href={`https://app.safe.global/home?safe=bnb:${safeAddress}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all"
+                        aria-label="Open in Safe"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -232,25 +263,20 @@ function ProfilePageContent() {
                       {usernameInput.trim().length >= 3 && (
                         <span className="absolute right-3 top-1/2 -translate-y-1/2">
                           {usernameChecking ? (
-                            <Loader2 className="h-3 w-3 animate-spin text-slate-500" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-500" />
                           ) : usernameTaken ? (
-                            <X className="h-3 w-3 text-red-400" />
+                            <X className="h-3.5 w-3.5 text-red-400" />
                           ) : (
-                            <Check className="h-3 w-3 text-emerald-400" />
+                            <Check className="h-3.5 w-3.5 text-emerald-400" />
                           )}
                         </span>
                       )}
                     </div>
-                    {usernameTaken && (
-                      <p className="text-xs text-red-400">Username already taken</p>
-                    )}
-                    {usernameError && (
-                      <p className="text-xs text-red-400">{usernameError}</p>
-                    )}
+                   
                     <div className="flex gap-2">
                       <button
                         onClick={saveUsername}
-                        disabled={usernameSaving || !usernameInput.trim() || usernameTaken || usernameChecking}
+                        disabled={usernameSaving || !usernameInput.trim() || usernameTaken || usernameChecking || username === usernameInput.trim()}
                         className="flex-1 py-2 rounded-xl bg-claw/90 text-black text-xs font-semibold disabled:opacity-50 cursor-pointer disabled:cursor-default"
                       >
                         {usernameSaving ? <Loader2 className="h-3 w-3 animate-spin mx-auto" /> : "Save"}
@@ -266,7 +292,7 @@ function ProfilePageContent() {
                 ) : (
                   <button
                     onClick={() => setUsernameEditing(true)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/4 border border-white/6 hover:border-claw/30 transition-colors group cursor-pointer"
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors group cursor-pointer"
                   >
                     <span className={`text-sm ${username ? "text-white" : "text-white/30"}`}>
                       {username ? `@${username}` : "Set a username"}
@@ -277,114 +303,19 @@ function ProfilePageContent() {
               </div>
             </div>
           </motion.div>
+         </div>
 
-          {/* Multisig Section */}
-          <motion.div variants={staggerItem}>
-            <div className="p-5 rounded-2xl bg-white/2 border border-white/6">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-2xl bg-gold/10 flex items-center justify-center shrink-0">
-                  <Shield className="h-[18px] w-[18px] text-gold" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-white">
-                    Multisig Config
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    2-of-2 treasury wallet
-                  </p>
-                </div>
-              </div>
-
-              {/* Safe Address */}
-              <div className="flex items-center gap-2 p-3.5 rounded-xl bg-white/4 mb-4">
-                <Wallet className="h-4 w-4 text-slate-500 shrink-0" />
-                <span className="font-mono text-[13px] text-slate-300 truncate min-w-0">
-                  {truncateAddress(safeAddress)}
-                </span>
-                <div className="flex items-center gap-0.5 ml-auto shrink-0">
-                  <button
-                    onClick={copyAddress}
-                    className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all cursor-pointer"
-                    aria-label="Copy safe address"
-                  >
-                    {copied ? (
-                      <Check className="h-3.5 w-3.5 text-gold" />
-                    ) : (
-                      <Copy className="h-3.5 w-3.5" />
-                    )}
-                  </button>
-                  <a
-                    href={`https://app.safe.global/home?safe=bnb:${safeAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-white/8 text-slate-500 hover:text-white transition-all"
-                    aria-label="Open in Safe"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </div>
-              </div>
-
-              {/* Signers */}
-              <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-3 px-1">
-                Signers
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/4">
-                  <div className="w-10 h-10 rounded-xl bg-white/6 flex items-center justify-center shrink-0">
-                    <Wallet className="h-5 w-5 text-gold" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium text-gold">
-                      Signer 1
-                    </p>
-                    <p className="text-[11px] text-slate-500 mb-0.5">
-                      Privy embedded wallet
-                    </p>
-                    <p
-                      className="font-mono text-[11px] text-slate-300 truncate"
-                      title={wallet?.address}
-                    >
-                      {wallet?.address
-                        ? truncateAddress(wallet.address)
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/4">
-                  <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center shrink-0">
-                    <Bot className="h-5 w-5 text-gold" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-medium text-gold">
-                      Signer 2
-                    </p>
-                    <p className="text-[11px] text-slate-500 mb-0.5">
-                      Agent
-                    </p>
-                    <p
-                      className="font-mono text-[11px] text-slate-300 truncate"
-                      title={process.env.NEXT_PUBLIC_AGENT_ADDRESS}
-                    >
-                      {process.env.NEXT_PUBLIC_AGENT_ADDRESS
-                        ? truncateAddress(process.env.NEXT_PUBLIC_AGENT_ADDRESS)
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+      
 
           {/* Logout */}
-          <motion.div variants={staggerItem}>
+          <motion.div className="w-full" variants={staggerItem}>
             <button
               type="button"
               onClick={async () => {
                 await logout();
                 router.replace("/login");
               }}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-medium text-slate-500 hover:text-red-400 bg-white/2 border border-white/6 hover:border-red-400/20 hover:bg-red-500/4 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl text-sm font-medium text-red-400 bg-white/2 border border-white/6 hover:border-red-400/20 hover:bg-red-500/4 transition-all"
             >
               <LogOut className="h-4 w-4" />
               Log out
