@@ -94,8 +94,10 @@ export function useOnboarding(
 
     const s = readStored(safeAddress);
 
-    // Fast path: already confirmed on this device
+    // Fast path: already confirmed on this device.
+    // Re-assert the cookie — it may have been cleared on logout while localStorage persisted.
     if (s.completed) {
+      setOnboardingCompleteCookie();
       setComplete(true);
       setLoading(false);
       return;

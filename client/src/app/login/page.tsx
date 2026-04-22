@@ -582,13 +582,17 @@ export default function LandingPage() {
     }
   };
 
-  const redirecting = !loading && user && wallet && !safeLoading && !onboardingLoading;
+  // As soon as Privy reports an authenticated session we stay on the loader —
+  // otherwise the login UI flashes during the window where user/wallet are
+  // populated but safeAddress / onboarding status are still resolving.
+  const hasSession = !!user && !!wallet;
+  const routeReady = hasSession && !safeLoading && !onboardingLoading;
 
-  if (!mounted || loading || redirecting) {
+  if (!mounted || loading || hasSession) {
     return (
       <ThemeLoader
         variant="auth"
-        message={redirecting ? "Taking you home..." : "Loading Zhentan"}
+        message={routeReady ? "Taking you home..." : "Loading Zhentan"}
         subtext="Securing your session"
       />
     );

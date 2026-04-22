@@ -14,7 +14,6 @@ import {
   markOnboardingUsernameSkipped,
   markOnboardingUsernameSet,
   markOnboardingTelegramDone,
-  markAllOnboardingSkipped,
 } from "@/lib/useOnboarding";
 
 /* ─── Step Indicator ─────────────────────────────────────────────── */
@@ -342,9 +341,27 @@ function ConnectStep({
 
 /* ─── Step 3: Done ───────────────────────────────────────────────── */
 
-function DoneStep({ username, socialName }: { username: string | null; socialName: string | null }) {
-  const router = useRouter();
+function DoneStep({
+  username,
+  socialName,
+  onFinish,
+}: {
+  username: string | null;
+  socialName: string | null;
+  onFinish: () => Promise<void>;
+}) {
+  const [finishing, setFinishing] = useState(false);
   const displayName = socialName?.trim() || username;
+
+  const handleGo = async () => {
+    if (finishing) return;
+    setFinishing(true);
+    try {
+      await onFinish();
+    } catch {
+      setFinishing(false);
+    }
+  };
 
   return (
     <motion.div
@@ -374,9 +391,12 @@ function DoneStep({ username, socialName }: { username: string | null; socialNam
         protected by Zhentan.
       </p>
 
-      <Button onClick={() => router.replace("/home")} className="w-full max-w-xs">
-        Go to App
-        <ArrowRight className="w-4 h-4" />
+      <Button onClick={handleGo} disabled={finishing} className="w-full max-w-xs">
+        {finishing ? (
+          <><Loader2 className="w-4 h-4 animate-spin" />Finishing...</>
+        ) : (
+          <>Go to App <ArrowRight className="w-4 h-4" /></>
+        )}
       </Button>
     </motion.div>
   );
@@ -409,20 +429,6 @@ function OnboardingContent() {
     setStepReady(true);
   }, [safeAddress]);
 
-  const completeOnboarding = () => {
-    if (!safeAddress) return;
-    markOnboardingTelegramDone(safeAddress); // cache completed=true locally
-    api.users.upsert({ safeAddress, onboardingCompleted: true }).catch(() => {});
-    setStep(2);
-  };
-
-  const handleSkipAll = () => {
-    if (!safeAddress) return;
-    markAllOnboardingSkipped(safeAddress);
-    api.users.upsert({ safeAddress, onboardingCompleted: true }).catch(() => {});
-    setStep(2);
-  };
-
   const handleSaveUsername = async (username: string) => {
     if (!safeAddress) throw new Error("Wallet not ready");
     await api.users.upsert({ safeAddress, username });
@@ -437,9 +443,18 @@ function OnboardingContent() {
     setStep(1);
   };
 
-  const handleTelegramDone = () => completeOnboarding();
+  const handleTelegramDone = () => setStep(2);
 
-  const handleSkipTelegram = () => completeOnboarding();
+  const handleSkipTelegram = () => setStep(2);
+
+  const handleFinish = async () => {
+    if (!safeAddress) return;
+    // Persist on the server first — we want onboarding_completed set even if the
+    // user never returns to this tab. Client-side flags and navigation follow.
+    await api.users.upsert({ safeAddress, onboardingCompleted: true });
+    markOnboardingTelegramDone(safeAddress);
+    router.replace("/home");
+  };
 
   // Don't render steps until we've read the persisted step
   if (!stepReady) return null;
@@ -496,7 +511,13 @@ function OnboardingContent() {
               onSkip={handleSkipTelegram}
             />
           )}
-          {step === 2 && <DoneStep username={savedUsername} socialName={user?.name ?? null} />}
+          {step === 2 && (
+            <DoneStep
+              username={savedUsername}
+              socialName={user?.name ?? null}
+              onFinish={handleFinish}
+            />
+          )}
         </AnimatePresence>
       </motion.div>
     </div>

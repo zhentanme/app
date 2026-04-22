@@ -1,5 +1,6 @@
 import { Router, type Request, type Response, type IRouter } from "express";
 import { getUserDetails, getUserByUsername, upsertUserDetails } from "../lib/supabase/index.js";
+import { notify } from "../notifications/index.js";
 
 export function createUsersRouter(): IRouter {
   const router = Router();
@@ -42,6 +43,7 @@ export function createUsersRouter(): IRouter {
       return;
     }
     try {
+      const before = await getUserDetails(safeAddress);
       await upsertUserDetails(safeAddress, {
         ...(email !== undefined && { email }),
         ...(name !== undefined && { name }),
@@ -51,6 +53,15 @@ export function createUsersRouter(): IRouter {
         ...(onboardingCompleted !== undefined && { onboarding_completed: onboardingCompleted }),
       });
       const details = await getUserDetails(safeAddress);
+
+      const onboardingJustCompleted =
+        onboardingCompleted === true && before?.onboarding_completed !== true;
+      if (onboardingJustCompleted && details) {
+        notify("onboarding_completed", details, {
+          displayName: details.name ?? details.username ?? undefined,
+        }).catch((err) => console.error("onboarding notify failed:", err));
+      }
+
       res.json({ user: details });
     } catch (err) {
       const msg = String(err);
